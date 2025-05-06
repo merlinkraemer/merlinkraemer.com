@@ -1,0 +1,14 @@
+
+body {
+     display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    min-height:100vh;
+    max-width: 800px;
+    margin: 1em auto;
+    padding: 0 1em;
+    font-family: sans-serif; 
+    line-height: 1.5;
+}
+
+
