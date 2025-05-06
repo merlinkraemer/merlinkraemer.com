@@ -1,17 +1,69 @@
+let galleryImages = [];
+let currentIndex = 0;
+
 function openLightbox(img) {
-    const lightbox = document.getElementById('lightbox');
+    galleryImages = Array.from(document.querySelectorAll('.gallery-images img'));
+    currentIndex = galleryImages.indexOf(img);
+    showLightboxImage();
+    document.getElementById('lightbox').style.display = 'block';
+}
+
+function showLightboxImage() {
     const lightboxImg = document.getElementById('lightbox-img');
-    lightboxImg.src = img.src;
-    lightbox.style.display = 'block';
+    if (galleryImages[currentIndex]) {
+        lightboxImg.src = galleryImages[currentIndex].src;
+    }
 }
 
 function closeLightbox() {
-    const lightbox = document.getElementById('lightbox');
-    lightbox.style.display = 'none';
+    document.getElementById('lightbox').style.display = 'none';
 }
 
 document.addEventListener('keydown', function(event) {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox.style.display !== 'block') return;
     if (event.key === 'Escape') {
         closeLightbox();
+    } else if (event.key === 'ArrowRight') {
+        nextImage();
+    } else if (event.key === 'ArrowLeft') {
+        prevImage();
     }
-}); 
+});
+
+function nextImage() {
+    if (galleryImages.length === 0) return;
+    currentIndex = (currentIndex + 1) % galleryImages.length;
+    showLightboxImage();
+}
+
+function prevImage() {
+    if (galleryImages.length === 0) return;
+    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+    showLightboxImage();
+}
+
+// Touch support for swipe
+let startX = 0;
+let endX = 0;
+const lightbox = document.getElementById('lightbox');
+if (lightbox) {
+    lightbox.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+    });
+    lightbox.addEventListener('touchend', function(e) {
+        endX = e.changedTouches[0].clientX;
+        handleSwipe();
+    });
+}
+
+function handleSwipe() {
+    const diff = endX - startX;
+    if (Math.abs(diff) > 50) { // minimum swipe distance
+        if (diff < 0) {
+            nextImage();
+        } else {
+            prevImage();
+        }
+    }
+} 
