@@ -141,6 +141,30 @@ function handleSwipe(endXValue) {
 }
 
 window.addEventListener('DOMContentLoaded', function () {
+    // Dark mode toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        // Check for saved theme preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeEmoji(savedTheme);
+        }
+
+        themeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeEmoji(newTheme);
+        });
+    }
+
+    function updateThemeEmoji(theme) {
+        themeToggle.innerHTML = theme === 'dark' ? 'Lightmode 🌞 ' : 'Darkmode 🌙';
+    }
+
     // Prevent logo link behavior and handle shake animation
     const logo = document.querySelector('.logo');
     if (logo) {
