@@ -121,15 +121,19 @@ function prevImage() {
 function handleSwipe(endXValue) {
     if (startX === 0) return;
     const diff = endXValue - startX;
-    const swipeThreshold = 30; // Reduced threshold for easier swiping
+    const swipeThreshold = 30;
+    const screenWidth = window.innerWidth;
+    const swipePercentage = Math.abs(diff) / screenWidth;
 
-    if (Math.abs(diff) > swipeThreshold) {
+    // If swiped more than 50% of screen width, change image
+    if (swipePercentage > 0.5) {
         if (diff < 0) {
             nextImage();
         } else {
             prevImage();
         }
     } else {
+        // If not swiped far enough, return to original position
         lightboxImg.style.transition = 'transform 0.2s ease-out';
         lightboxImg.style.transform = 'translateX(0)';
     }
