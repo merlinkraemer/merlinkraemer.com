@@ -1,4 +1,3 @@
-
 body {
      display: flex;
     flex-direction: column; 
@@ -9,6 +8,55 @@ body {
     padding: 0 1em;
     font-family: sans-serif; 
     line-height: 1.5;
+}
+
+.gallery {
+    margin: 2em 0;
+}
+
+.gallery h2 {
+    margin-bottom: 0.5em;
+}
+
+.gallery-images {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1em;
+    max-width: 600px;
+}
+
+.gallery-images img {
+    width: 100%;
+    height: auto;
+    max-width: 250px;
+    cursor: pointer;
+}
+
+#lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    cursor: pointer;
+}
+
+#lightbox-img {
+    max-width: 90%;
+    max-height: 90vh;
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+}
+
+main {
+    padding-top: 25vh;
 }
 
 
