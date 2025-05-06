@@ -6,11 +6,16 @@ let currentImageIndex = 0;
 const images = document.querySelectorAll('.gallery-images img');
 const lightbox = document.getElementById('lightbox');
 const lightboxImg = document.getElementById('lightbox-img');
+const spinner = document.getElementById('spinner');
 
 function openLightbox(imgElement) {
     galleryImages = Array.from(document.querySelectorAll('.gallery-images img'));
     currentImageIndex = Array.from(images).indexOf(imgElement);
     lightboxImg.src = imgElement.src;
+    spinner.style.display = 'block'; // Show spinner
+    lightboxImg.onload = () => {
+        spinner.style.display = 'none'; // Hide spinner when image is loaded
+    };
     lightbox.style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
@@ -107,7 +112,31 @@ function handleSwipeOrDrag() {
 
 function showImage(index) {
     if (index >= 0 && index < images.length) {
+        spinner.style.display = 'block'; // Show spinner
         lightboxImg.src = images[index].src;
         currentImageIndex = index;
+        lightboxImg.onload = () => {
+            spinner.style.display = 'none'; // Hide spinner when image is loaded
+        };
     }
+}
+
+.spinner {
+    border: 16px solid #f3f3f3; /* Light grey */
+    border - top: 16px solid #3498db; /* Blue */
+    border - radius: 50 %;
+    width: 60px;
+    height: 60px;
+    animation: spin 2s linear infinite;
+    position: absolute;
+    top: 50 %;
+    left: 50 %;
+    transform: translate(-50 %, -50 %);
+    z - index: 1001; /* Above the lightbox */
+    display: none; /* Hidden by default */
+}
+
+@keyframes spin {
+    0 % { transform: translate(-50 %, -50 %) rotate(0deg); }
+    100 % { transform: translate(-50 %, -50 %) rotate(360deg); }
 } 
