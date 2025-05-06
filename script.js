@@ -121,12 +121,12 @@ function prevImage() {
 function handleSwipe(endXValue) {
     if (startX === 0) return;
     const diff = endXValue - startX;
-    const swipeThreshold = 30;
+    const swipeThreshold = 20;
     const screenWidth = window.innerWidth;
     const swipePercentage = Math.abs(diff) / screenWidth;
 
-    // If swiped more than 50% of screen width, change image
-    if (swipePercentage > 0.5) {
+    // If swiped more than 25% of screen width, change image
+    if (swipePercentage > 0.25) {
         if (diff < 0) {
             nextImage();
         } else {
@@ -198,8 +198,8 @@ window.addEventListener('DOMContentLoaded', function () {
         e.preventDefault();
         const currentX = e.touches[0].clientX;
         const diff = currentX - startX;
-        // Add resistance to the swipe
-        const resistance = 0.5;
+        // Reduced resistance for more responsive swiping
+        const resistance = 0.8;
         const adjustedDiff = diff * resistance;
         lightboxImg.style.transform = `translateX(${adjustedDiff}px)`;
     }, { passive: false });
