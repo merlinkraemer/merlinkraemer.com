@@ -2,29 +2,31 @@ let galleryImages = [];
 let currentIndex = 0;
 let startX = 0;
 let endX = 0;
+let currentImageIndex = 0;
+const images = document.querySelectorAll('.gallery-images img');
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
 
-function openLightbox(img) {
+function openLightbox(imgElement) {
     galleryImages = Array.from(document.querySelectorAll('.gallery-images img'));
-    currentIndex = galleryImages.indexOf(img);
-    showLightboxImage();
-    document.getElementById('lightbox').style.display = 'block';
+    currentImageIndex = Array.from(images).indexOf(imgElement);
+    lightboxImg.src = imgElement.src;
+    lightbox.style.display = 'flex';
     document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
 
 function showLightboxImage() {
-    const lightboxImg = document.getElementById('lightbox-img');
     if (galleryImages[currentIndex]) {
         lightboxImg.src = galleryImages[currentIndex].src;
     }
 }
 
 function closeLightbox() {
-    document.getElementById('lightbox').style.display = 'none';
+    lightbox.style.display = 'none';
     document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', function(event) {
-    const lightbox = document.getElementById('lightbox');
+document.addEventListener('keydown', function (event) {
     if (lightbox.style.display !== 'block') return;
     if (event.key === 'Escape') {
         closeLightbox();
@@ -48,31 +50,43 @@ function prevImage() {
 }
 
 // Attach swipe and drag listeners after DOM is loaded
-window.addEventListener('DOMContentLoaded', function() {
-    const lightbox = document.getElementById('lightbox');
+window.addEventListener('DOMContentLoaded', function () {
     if (lightbox) {
         // Mobile swipe
-        lightbox.addEventListener('touchstart', function(e) {
+        lightbox.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
         });
-        lightbox.addEventListener('touchend', function(e) {
-            endX = e.changedTouches[0].clientX;
-            handleSwipeOrDrag();
+        lightbox.addEventListener('touchmove', (e) => {
+            if (!startX) return;
+
+            let endX = e.touches[0].clientX;
+            let diffX = startX - endX;
+
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // Swipe left
+                    showImage(currentImageIndex + 1);
+                } else {
+                    // Swipe right
+                    showImage(currentImageIndex - 1);
+                }
+                startX = 0; // Reset startX to prevent multiple swipes
+            }
         });
         // Desktop drag
         let isDragging = false;
-        lightbox.addEventListener('mousedown', function(e) {
+        lightbox.addEventListener('mousedown', function (e) {
             isDragging = true;
             startX = e.clientX;
         });
-        lightbox.addEventListener('mouseup', function(e) {
+        lightbox.addEventListener('mouseup', function (e) {
             if (!isDragging) return;
             isDragging = false;
             endX = e.clientX;
             handleSwipeOrDrag();
         });
         // Prevent image selection while dragging
-        lightbox.addEventListener('mousemove', function(e) {
+        lightbox.addEventListener('mousemove', function (e) {
             if (isDragging) {
                 e.preventDefault();
             }
@@ -88,5 +102,12 @@ function handleSwipeOrDrag() {
         } else {
             prevImage();
         }
+    }
+}
+
+function showImage(index) {
+    if (index >= 0 && index < images.length) {
+        lightboxImg.src = images[index].src;
+        currentImageIndex = index;
     }
 } 
