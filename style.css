@@ -93,6 +93,10 @@ body {
     .gallery-images {
         grid-template-columns: 1fr;
     }
+    .logo {
+        width: 24px;
+        height: 24px;
+    }
 }
 
 /* --- Lightbox Core Styles (You already have these, which is correct!) --- */
@@ -146,6 +150,7 @@ body {
     right: 50px;
 }
 
+/* Hide navigation arrows on mobile */
 @media (max-width: 600px) {
     .lightbox-nav {
         display: none;
