@@ -26,6 +26,17 @@ body {
     max-width: 100%;
 }
 
+.gallery-images > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.gallery-images i {
+    font-size: 0.9em;
+    color: #666;
+}
+
 @media (min-width: 600px) {
     .gallery-images {
         grid-template-columns: repeat(2, 1fr);
@@ -70,33 +81,4 @@ body {
 
 main {
     padding-top: 25vh;
-}
-
-.spinner {
-    border: 16px solid #f3f3f3;
-    /* Light grey */
-    border-top: 16px solid #3498db;
-    /* Blue */
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 2s linear infinite;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 1001;
-    /* Above the lightbox */
-    display: none;
-    /* Hidden by default */
-}
-
-@keyframes spin {
-    0% {
-        transform: translate(-50%, -50%) rotate(0deg);
-    }
-
-    100% {
-        transform: translate(-50%, -50%) rotate(360deg);
-    }
 }
