@@ -48,18 +48,37 @@ let startX = 0;
 let endX = 0;
 const lightbox = document.getElementById('lightbox');
 if (lightbox) {
+    // Mobile swipe
     lightbox.addEventListener('touchstart', function(e) {
         startX = e.touches[0].clientX;
     });
     lightbox.addEventListener('touchend', function(e) {
         endX = e.changedTouches[0].clientX;
-        handleSwipe();
+        handleSwipeOrDrag();
+    });
+    // Desktop drag
+    let isDragging = false;
+    lightbox.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        startX = e.clientX;
+    });
+    lightbox.addEventListener('mouseup', function(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        endX = e.clientX;
+        handleSwipeOrDrag();
+    });
+    // Prevent image selection while dragging
+    lightbox.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            e.preventDefault();
+        }
     });
 }
 
-function handleSwipe() {
+function handleSwipeOrDrag() {
     const diff = endX - startX;
-    if (Math.abs(diff) > 50) { // minimum swipe distance
+    if (Math.abs(diff) > 50) { // minimum swipe/drag distance
         if (diff < 0) {
             nextImage();
         } else {
