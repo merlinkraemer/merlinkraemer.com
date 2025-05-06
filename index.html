@@ -14,9 +14,14 @@
   <body>
     <header>
       <h1 style="display: none">merlin's internet</h1>
+      
     </header>
 
     <main>
+      <a href="/">
+        <img src="/favicon.png" alt="Logo" class="logo" />
+      </a>
+      <br>
       <a
         href="https://soundcloud.com/merlin040/keys-dont-match-remix"
         target="_blank"
@@ -111,6 +116,8 @@
 
     <div id="lightbox" onclick="closeLightbox()">
       <img id="lightbox-img" src="" />
+      <a href="#" class="lightbox-nav lightbox-prev" onclick="event.stopPropagation(); prevImage();">&lt;</a>
+      <a href="#" class="lightbox-nav lightbox-next" onclick="event.stopPropagation(); nextImage();">&gt;</a>
     </div>
 
     <footer>
