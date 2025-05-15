@@ -176,14 +176,15 @@ body {
 }
 
 #lightbox-img {
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: none;
+    max-height: none;
+    width: auto;
+    height: auto;
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;
-    transition: transform 0.3s ease-out;
+    transition: none;
     transform-origin: center center;
-    /* Ensure scaling is centered */
 }
 
 /* --- NEW & NECESSARY: Lightbox Navigation Arrows --- */
