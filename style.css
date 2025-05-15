@@ -22,7 +22,8 @@ body {
     padding: 0 1em;
     font-family: sans-serif;
     line-height: 1.5;
-    overflow-x: hidden; /* Good for general layout */
+    overflow-x: hidden;
+    /* Good for general layout */
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
@@ -47,29 +48,67 @@ body {
 }
 
 @keyframes bananaShake {
-    0% { transform: rotate(0deg); }
-    25% { transform: rotate(-3deg); }
-    50% { transform: rotate(0deg); }
-    75% { transform: rotate(3deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    25% {
+        transform: rotate(-3deg);
+    }
+
+    50% {
+        transform: rotate(0deg);
+    }
+
+    75% {
+        transform: rotate(3deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 @keyframes bananaClickShake {
-    0% { transform: rotate(0deg); }
-    15% { transform: rotate(-12deg); }
-    30% { transform: rotate(12deg); }
-    45% { transform: rotate(-12deg); }
-    60% { transform: rotate(12deg); }
-    75% { transform: rotate(-6deg); }
-    90% { transform: rotate(3deg); }
-    100% { transform: rotate(0deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    15% {
+        transform: rotate(-12deg);
+    }
+
+    30% {
+        transform: rotate(12deg);
+    }
+
+    45% {
+        transform: rotate(-12deg);
+    }
+
+    60% {
+        transform: rotate(12deg);
+    }
+
+    75% {
+        transform: rotate(-6deg);
+    }
+
+    90% {
+        transform: rotate(3deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }
 
 .gallery {
     margin: 2em 0;
 }
 
-.gallery h2 { /* Assuming you might add an <h2> inside .gallery later */
+.gallery h2 {
+    /* Assuming you might add an <h2> inside .gallery later */
     margin-bottom: 0.5em;
 }
 
@@ -80,7 +119,7 @@ body {
     max-width: 100%;
 }
 
-.gallery-images > div {
+.gallery-images>div {
     display: flex;
     flex-direction: column;
     gap: 0.5em;
@@ -110,6 +149,7 @@ body {
     .gallery-images {
         grid-template-columns: 1fr;
     }
+
     .logo {
         width: 24px;
         height: 24px;
@@ -118,7 +158,8 @@ body {
 
 /* --- Lightbox Core Styles (You already have these, which is correct!) --- */
 #lightbox {
-    display: none; /* Crucial: Initially hidden, JS will change to 'flex' */
+    display: none;
+    /* Crucial: Initially hidden, JS will change to 'flex' */
     position: fixed;
     top: 0;
     left: 0;
@@ -127,22 +168,22 @@ body {
     background-color: rgba(0, 0, 0, 0.85);
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Crucial: Ensure it's on top */
-    overflow: hidden; /* Good practice for the lightbox container */
+    z-index: 1000;
+    /* Crucial: Ensure it's on top */
+    overflow: hidden;
+    /* Good practice for the lightbox container */
     -webkit-tap-highlight-color: transparent;
 }
 
 #lightbox-img {
     max-width: 90vw;
-    max-height: 90vh; /* Adjust if nav buttons interfere, 85vh can give more space */
+    max-height: 90vh;
     object-fit: contain;
     user-select: none;
     -webkit-user-drag: none;
-    transition: transform 0.3s ease-out; /* Crucial: For slide and snap-back animations */
-    /* Optional nice-to-haves (can be added if desired):
-    border: 2px solid white;
-    box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    */
+    transition: transform 0.3s ease-out;
+    transform-origin: center center;
+    /* Ensure scaling is centered */
 }
 
 /* --- NEW & NECESSARY: Lightbox Navigation Arrows --- */
@@ -173,6 +214,7 @@ body {
         display: none;
     }
 }
+
 /* --- End of NEW Lightbox Navigation Arrows --- */
 
 /* This comment is for informational purposes about what the JS does. No CSS rule needed here.
@@ -182,7 +224,8 @@ body[style*="position: fixed"] {
 */
 
 main {
-    padding-top: 25vh; /* This is your existing style, unrelated to lightbox */
+    padding-top: 25vh;
+    /* This is your existing style, unrelated to lightbox */
 }
 
 .header-container {

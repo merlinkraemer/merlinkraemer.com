@@ -6,6 +6,9 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 let initialScrollY = 0;
 let preloadedImages = new Set();
+let initialDistance = null;
+let initialScale = 1;
+let currentScale = 1;
 
 function preloadImage(src) {
   if (preloadedImages.has(src)) return;
@@ -145,6 +148,13 @@ function handleSwipe(endXValue) {
   startX = 0;
 }
 
+function getDistance(touches) {
+  const [touch1, touch2] = touches;
+  const dx = touch2.clientX - touch1.clientX;
+  const dy = touch2.clientY - touch1.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
 window.addEventListener("DOMContentLoaded", function () {
   // Dark mode toggle
   const themeToggle = document.getElementById("theme-toggle");
@@ -247,5 +257,28 @@ window.addEventListener("DOMContentLoaded", function () {
     // Check if the mouse truly left the lightbox, not just moved onto a child like a nav button
     // A more robust way is to check relatedTarget, but for simplicity, we'll handle based on startX
     handleSwipe(e.clientX);
+  });
+
+  lightbox.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialDistance = getDistance(e.touches);
+      initialScale = currentScale;
+    }
+  }, { passive: true });
+
+  lightbox.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialDistance) {
+      e.preventDefault();
+      const currentDistance = getDistance(e.touches);
+      const scaleChange = currentDistance / initialDistance;
+      currentScale = initialScale * scaleChange;
+      lightboxImg.style.transform = `scale(${currentScale})`;
+    }
+  }, { passive: false });
+
+  lightbox.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      initialDistance = null;
+    }
   });
 });
