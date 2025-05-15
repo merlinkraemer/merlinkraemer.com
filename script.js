@@ -3,6 +3,7 @@ let currentIndex = 0;
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 let initialScrollY = 0;
+let startY = 0;
 
 function openLightbox(imgElement) {
   galleryImages = Array.from(document.querySelectorAll(".gallery-images img"));
@@ -76,4 +77,33 @@ window.addEventListener("DOMContentLoaded", function () {
     console.error("Lightbox elements not found!");
     return;
   }
+
+  // Add event listener for the Escape key
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && lightbox.style.display === "flex") {
+      closeLightbox();
+    }
+  });
+
+  // Add touch event listeners for swipe down to close
+  lightbox.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {
+      startY = e.touches[0].clientY;
+    }
+  });
+
+  lightbox.addEventListener("touchmove", (e) => {
+    if (!startY) return;
+    const currentY = e.touches[0].clientY;
+    const diffY = currentY - startY;
+
+    if (diffY > 50) { // Swipe down threshold
+      closeLightbox();
+      startY = 0;
+    }
+  });
+
+  lightbox.addEventListener("touchend", () => {
+    startY = 0;
+  });
 });
