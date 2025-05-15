@@ -6,7 +6,7 @@
 }
 
 [data-theme="dark"] {
-    --bg-color: #1a1a1a;
+    --bg-color: #000;
     --text-color: #ffffff;
     --link-color: #0000FF;
     --gallery-bg: #2a2a2a;
