@@ -6,6 +6,7 @@ const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
 let initialScrollY = 0;
 let preloadedImages = new Set();
+let isPinching = false;
 
 function preloadImage(src) {
   if (preloadedImages.has(src)) return;
@@ -124,7 +125,7 @@ function prevImage() {
 }
 
 function handleSwipe(endXValue) {
-  if (startX === 0) return;
+  if (startX === 0 || isPinching) return;
   const diff = endXValue - startX;
   const swipeThreshold = 20;
   const screenWidth = window.innerWidth;
@@ -195,6 +196,10 @@ window.addEventListener("DOMContentLoaded", function () {
   lightbox.addEventListener(
     "touchstart",
     (e) => {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        return;
+      }
       if (e.target !== lightboxImg) return;
       startX = e.touches[0].clientX;
       lightboxImg.style.transition = "none";
@@ -205,7 +210,7 @@ window.addEventListener("DOMContentLoaded", function () {
   lightbox.addEventListener(
     "touchmove",
     (e) => {
-      if (!startX || e.target !== lightboxImg) return;
+      if (isPinching || !startX || e.target !== lightboxImg) return;
       e.preventDefault();
       const currentX = e.touches[0].clientX;
       const diff = currentX - startX;
@@ -218,6 +223,9 @@ window.addEventListener("DOMContentLoaded", function () {
   );
 
   lightbox.addEventListener("touchend", (e) => {
+    if (e.touches.length < 2) {
+      isPinching = false;
+    }
     if (!startX) return;
     handleSwipe(e.changedTouches[0].clientX);
   });
