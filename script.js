@@ -1,109 +1,33 @@
-let galleryImages = [];
-let currentIndex = 0;
 const lightbox = document.getElementById("lightbox");
 const lightboxImg = document.getElementById("lightbox-img");
-let initialScrollY = 0;
-let startY = 0;
 
-function openLightbox(imgElement) {
-  galleryImages = Array.from(document.querySelectorAll(".gallery-images img"));
-  currentIndex = galleryImages.indexOf(imgElement);
-
-  if (currentIndex === -1) {
-    console.error(
-      "Image not found in galleryImages array. Cannot open lightbox."
-    );
-    return;
-  }
-
-  initialScrollY = window.scrollY;
-  document.body.style.overflow = "hidden";
-  document.body.style.position = "fixed";
-  document.body.style.width = "100%";
-  document.body.style.top = `-${initialScrollY}px`;
-
-  lightbox.style.display = "flex";
-  lightboxImg.src = imgElement.src;
-}
-
-function closeLightbox() {
-  lightbox.style.display = "none";
-  document.body.style.overflow = "";
-  document.body.style.position = "";
-  document.body.style.width = "";
-  document.body.style.top = "";
-  window.scrollTo(0, initialScrollY);
-  initialScrollY = 0;
-}
-
-window.addEventListener("DOMContentLoaded", function () {
-  const themeToggle = document.getElementById("theme-toggle");
-  if (themeToggle) {
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme) {
-      document.documentElement.setAttribute("data-theme", savedTheme);
-      updateThemeEmoji(savedTheme);
-    }
-
-    themeToggle.addEventListener("click", function (e) {
-      e.preventDefault();
-      const currentTheme = document.documentElement.getAttribute("data-theme");
-      const newTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      updateThemeEmoji(newTheme);
-    });
-  }
-
-  function updateThemeEmoji(theme) {
-    themeToggle.innerHTML = theme === "dark" ? "Lightmode 🌞 " : "Darkmode 🌙";
-  }
-
-  const logo = document.querySelector(".logo");
-  if (logo) {
-    logo.addEventListener("click", function (e) {
-      e.preventDefault();
-      logo.classList.remove("shake");
-      void logo.offsetWidth;
-      logo.classList.add("shake");
-
-      setTimeout(() => {
-        logo.classList.remove("shake");
-      }, 800);
-    });
-  }
-
-  if (!lightbox || !lightboxImg) {
-    console.error("Lightbox elements not found!");
-    return;
-  }
-
-  // Add event listener for the Escape key
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" && lightbox.style.display === "flex") {
-      closeLightbox();
-    }
-  });
-
-  // Add touch event listeners for swipe down to close
-  lightbox.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 1) {
-      startY = e.touches[0].clientY;
-    }
-  });
-
-  lightbox.addEventListener("touchmove", (e) => {
-    if (!startY) return;
-    const currentY = e.touches[0].clientY;
-    const diffY = currentY - startY;
-
-    if (diffY > 50) { // Swipe down threshold
-      closeLightbox();
-      startY = 0;
-    }
-  });
-
-  lightbox.addEventListener("touchend", () => {
-    startY = 0;
+document.querySelectorAll('.gallery-img').forEach(img => {
+  img.addEventListener('click', () => {
+    lightboxImg.src = img.src;
+    lightbox.classList.add('open');
+    document.body.classList.add('noscroll');
   });
 });
+
+lightbox.addEventListener('click', () => {
+  lightbox.classList.remove('open');
+  document.body.classList.remove('noscroll');
+  lightboxImg.src = '';
+});
+
+// Fast shake animation for logo
+const logo = document.querySelector('.logo');
+if (logo) {
+  logo.addEventListener('click', function (e) {
+    e.preventDefault();
+    logo.classList.remove('shake');
+    // Force reflow to restart animation
+    void logo.offsetWidth;
+    logo.classList.add('shake');
+  });
+  logo.addEventListener('animationend', function (e) {
+    if (e.animationName === 'logoShake') {
+      logo.classList.remove('shake');
+    }
+  });
+}
