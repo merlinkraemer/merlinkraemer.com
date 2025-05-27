@@ -178,3 +178,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 >>>>>>> moo-pwa-repo/main
+
+
+src/generated/
+src/generated/prisma/*
