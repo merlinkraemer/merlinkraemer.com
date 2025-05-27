@@ -1,0 +1,15 @@
+{
+    "name": "merlins internet",
+    "short_name": "mgoesinternet",
+    "start_url": "/public",
+    "display": "standalone",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FFFF00",
+    "icons": [
+        {
+            "src": "/bananas.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ]
+}

@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Custom marquee animation */
+@keyframes marquee {
+    0% {
+        transform: translateX(180%);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Register custom class as a Tailwind utility */
+@layer utilities {
+    .animate-marquee {
+        animation: marquee 10s linear infinite;
+    }
+}
+
+@layer base {
+    button {
+        all: revert
+    }
+
+    input {
+        all: revert
+    }
+}
