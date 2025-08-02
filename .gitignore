@@ -134,3 +134,49 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Source files
+src/
+*.ts
+*.tsx
+*.jsx
+*.js
+
+# Tailwind CSS
+tailwind.config.*
+postcss.config.*
+*.css
+
+# Build outputs
+dist/
+build/
+out/
+
+# Generated files
+generated/
+*.generated.*
+
+# Sync conflicts
+*.sync-conflict-*
+
+# System files
+.DS_Store
+
+# Configuration files
+components.json
+docker-compose.yml
+eslint.config.mjs
+tsconfig.json
+
+# Package files
+package.json
+package-lock.json
+
+# Database
+prisma/
+
+# Public assets
+public/
+
+# Development files
+todo.md
