@@ -93,3 +93,4 @@ temp/
 
 # Prisma
 prisma/dev.db*
+.vercel

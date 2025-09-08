@@ -21,9 +21,11 @@ export const galleryApi = {
   // Get all gallery images
   getGallery: async (): Promise<GalleryData> => {
     try {
+      console.log("API: Fetching gallery data...");
       const response = await api.get("/gallery");
+      console.log("API: Gallery data fetched successfully");
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching gallery:", error);
       // Return empty gallery data as fallback
       return { finished: [], wip: [] };
@@ -32,12 +34,26 @@ export const galleryApi = {
 
   // Add new image (admin only)
   addImage: async (formData: FormData): Promise<GalleryImage> => {
-    const response = await api.post("/gallery", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
+    try {
+      console.log("API: Attempting to upload image...");
+      console.log("API: Base URL:", API_BASE_URL);
+      console.log("API: Admin token:", localStorage.getItem("admin_token"));
+
+      const response = await api.post("/gallery", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      console.log("API: Upload successful:", response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error("API: Upload failed:", error);
+      if (error.response) {
+        console.error("API: Response status:", error.response.status);
+        console.error("API: Response data:", error.response.data);
+      }
+      throw error;
+    }
   },
 
   // Update image (admin only)

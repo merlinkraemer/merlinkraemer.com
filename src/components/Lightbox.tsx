@@ -1,7 +1,7 @@
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Navigation, Keyboard } from "swiper/modules";
+import { Pagination, Navigation, Keyboard, Zoom } from "swiper/modules";
 import type { GalleryImage } from "@/types/gallery";
 
 interface LightboxProps {
@@ -19,6 +19,41 @@ export default function Lightbox({
 }: LightboxProps) {
   const swiperRef = useRef<any>(null);
 
+  // Debug lightbox state changes and preserve scroll position
+  React.useEffect(() => {
+    if (isOpen) {
+      console.log("🔍 Lightbox: OPENED", {
+        currentImageId,
+        totalImages: allImages.length,
+        cacheSize: typeof window !== "undefined" ? window.imageCache?.size : 0,
+      });
+    } else {
+      console.log("❌ Lightbox: CLOSED", {
+        cacheSize: typeof window !== "undefined" ? window.imageCache?.size : 0,
+      });
+    }
+  }, [isOpen, currentImageId, allImages.length]);
+
+  // Preserve scroll position when lightbox closes
+  React.useEffect(() => {
+    if (isOpen) {
+      // Store current scroll position when lightbox opens
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    } else {
+      // Restore scroll position when lightbox closes
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY || "0") * -1);
+      }
+    }
+  }, [isOpen]);
+
   // Calculate the correct index immediately
   const activeIndex = React.useMemo(() => {
     if (currentImageId && allImages.length > 0) {
@@ -32,37 +67,52 @@ export default function Lightbox({
 
   const [currentSlide, setCurrentSlide] = useState(activeIndex);
 
-  // Preload adjacent images for smoother navigation
-  const preloadAdjacentImages = useMemo(() => {
-    if (!isOpen || !currentImageId) return [];
-    const currentIndex = allImages.findIndex(
-      (img) => img.id === currentImageId
-    );
-    const adjacentImages = [];
-
-    // Preload previous and next images
-    if (currentIndex > 0) {
-      adjacentImages.push(allImages[currentIndex - 1].src);
-    }
-    if (currentIndex < allImages.length - 1) {
-      adjacentImages.push(allImages[currentIndex + 1].src);
-    }
-
-    return adjacentImages;
-  }, [isOpen, currentImageId, allImages]);
-
-  // Preload adjacent images when lightbox opens
+  // Preload images immediately when lightbox opens
   React.useEffect(() => {
-    if (preloadAdjacentImages.length > 0) {
-      preloadAdjacentImages.forEach((src) => {
+    if (isOpen && allImages.length > 0) {
+      console.log("🔍 Lightbox opened, preloading all images...", {
+        totalImages: allImages.length,
+        currentCacheSize:
+          typeof window !== "undefined" ? window.imageCache?.size : 0,
+      });
+
+      allImages.forEach((image, index) => {
+        // Check if already cached
+        if (
+          typeof window !== "undefined" &&
+          window.imageCache?.has(image.src)
+        ) {
+          console.log(`⏭️ Lightbox: Image ${index} already cached:`, image.src);
+          return; // Skip if already cached
+        }
+
+        console.log(`🔄 Lightbox: Preloading image ${index}:`, image.src);
+        // Preload with high priority
         const img = new Image();
-        img.src = src;
+        img.onload = () => {
+          if (typeof window !== "undefined") {
+            window.imageCache?.add(image.src);
+            console.log(
+              `✅ Lightbox: Cached image ${index}:`,
+              image.src,
+              "Cache size:",
+              window.imageCache?.size
+            );
+          }
+        };
+        img.onerror = () => {
+          console.log(
+            `❌ Lightbox: Failed to preload image ${index}:`,
+            image.src
+          );
+        };
+        img.src = image.src;
       });
     }
-  }, [preloadAdjacentImages]);
+  }, [isOpen, allImages]);
 
-  // Handle keyboard events
-  React.useEffect(() => {
+  // Handle keyboard events and prevent background scroll
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
 
@@ -79,14 +129,36 @@ export default function Lightbox({
       }
     };
 
+    // Prevent background scroll on mobile
+    const preventScroll = (e: TouchEvent) => {
+      if (isOpen) {
+        e.preventDefault();
+      }
+    };
+
+    // Prevent background scroll on wheel events
+    const preventWheel = (e: WheelEvent) => {
+      if (isOpen) {
+        e.preventDefault();
+      }
+    };
+
     if (isOpen) {
       document.addEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "hidden";
+      document.addEventListener("touchmove", preventScroll, { passive: false });
+      document.addEventListener("wheel", preventWheel, { passive: false });
+
+      // Prevent background scroll using CSS class
+      document.body.classList.add("lightbox-open");
     }
 
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = "unset";
+      document.removeEventListener("touchmove", preventScroll);
+      document.removeEventListener("wheel", preventWheel);
+
+      // Restore scrolling
+      document.body.classList.remove("lightbox-open");
     };
   }, [isOpen, onClose]);
 
@@ -183,7 +255,16 @@ export default function Lightbox({
             keyboard={{
               enabled: true,
             }}
-            modules={[Pagination, Navigation, Keyboard]}
+            zoom={{
+              maxRatio: 3,
+              minRatio: 1,
+              toggle: true,
+            }}
+            touchRatio={1}
+            touchAngle={45}
+            simulateTouch={true}
+            allowTouchMove={true}
+            modules={[Pagination, Navigation, Keyboard, Zoom]}
             style={{ height: "100%", width: "100%" }}
             onSlideChange={(swiper) => setCurrentSlide(swiper.activeIndex)}
             onSwiper={(swiper) => {
@@ -206,21 +287,34 @@ export default function Lightbox({
                   justifyContent: "center",
                 }}
               >
-                <img
-                  src={image.src}
-                  alt={image.alt}
+                <div
+                  className="swiper-zoom-container"
                   style={{
-                    maxWidth: "100%",
-                    maxHeight: "100%",
-                    objectFit: "contain",
-                    borderRadius: "8px",
-                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
-                  onError={(e) => {
-                    console.error("Failed to load image:", image.src);
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
+                >
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    data-swiper-zoom="2"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                      boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+                      cursor: "zoom-in",
+                    }}
+                    onError={(e) => {
+                      console.error("Failed to load image:", image.src);
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
               </SwiperSlide>
             ))}
           </Swiper>

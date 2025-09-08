@@ -2,6 +2,7 @@
 @import 'swiper/css';
 @import 'swiper/css/pagination';
 @import 'swiper/css/navigation';
+@import 'swiper/css/zoom';
 
 @tailwind base;
 @tailwind components;
@@ -446,4 +447,56 @@ img {
 
 .masonry-item {
   contain: layout style paint;
+}
+
+/* Mobile Lightbox Styles */
+@media (max-width: 768px) {
+  .lightbox-container {
+    touch-action: none !important;
+  }
+
+  .swiper-zoom-container {
+    touch-action: manipulation !important;
+  }
+
+  .swiper-zoom-container img {
+    touch-action: manipulation !important;
+  }
+
+  /* Prevent text selection on mobile */
+  .lightbox-container * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  /* Better touch targets for mobile */
+  .lightbox-container button {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* Zoom functionality styles */
+.swiper-zoom-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-zoom-container img {
+  transition: transform 0.3s ease;
+}
+
+/* Prevent body scroll when lightbox is open */
+body.lightbox-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+  height: 100% !important;
 }

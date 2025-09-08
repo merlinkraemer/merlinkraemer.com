@@ -79,6 +79,16 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
     setError(null);
 
     try {
+      console.log("ImageUpload: Starting upload process...");
+      console.log("ImageUpload: Form data:", {
+        image: formData.image?.name,
+        alt: formData.alt,
+        description: formData.description,
+        category: formData.category,
+        year: formData.year,
+        width: formData.width,
+      });
+
       const uploadData = new FormData();
       uploadData.append("image", formData.image);
       uploadData.append("alt", formData.alt);
@@ -87,7 +97,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
       uploadData.append("year", formData.year.toString());
       uploadData.append("width", formData.width.toString());
 
+      console.log("ImageUpload: Calling galleryApi.addImage...");
       await galleryApi.addImage(uploadData);
+      console.log("ImageUpload: Upload successful!");
 
       // Reset form
       setFormData({

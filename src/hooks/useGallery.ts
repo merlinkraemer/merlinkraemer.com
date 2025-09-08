@@ -26,8 +26,11 @@ export function useGallery() {
         setGalleryData(data);
         setError(null);
 
-        // Preload first 3 images for faster initial load
-        const criticalImages = data.finished.slice(0, 3).map((img) => img.src);
+        // Preload first 6 images for faster initial load
+        const criticalImages = [
+          ...data.finished.slice(0, 4).map((img) => img.src),
+          ...data.wip.slice(0, 2).map((img) => img.src),
+        ];
         preloadImages(criticalImages);
       } catch (err) {
         console.error("Error fetching gallery:", err);

@@ -64,7 +64,14 @@ app.get("/api/gallery", async (req, res) => {
     res.json(galleryData);
   } catch (error) {
     console.error("Error fetching gallery:", error);
-    res.status(500).json({ error: "Failed to fetch gallery" });
+
+    // Return fallback data if database is not available
+    const fallbackData = {
+      finished: [],
+      wip: [],
+    };
+
+    res.json(fallbackData);
   }
 });
 
@@ -201,6 +208,40 @@ app.delete("/api/gallery/:id", authenticate, async (req, res) => {
   }
 });
 
+// Add existing image (for importing from R2)
+app.post("/api/gallery/existing", authenticate, async (req, res) => {
+  try {
+    const { src, alt, description, category, year, width } = req.body;
+
+    if (!src || !alt || !description || !category || !year) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Validate width (1-7)
+    const widthValue = width ? parseInt(width) : 1;
+    if (widthValue < 1 || widthValue > 7) {
+      return res.status(400).json({ error: "Width must be between 1 and 7" });
+    }
+
+    // Create database record
+    const newImage = await prisma.galleryImage.create({
+      data: {
+        src,
+        alt,
+        description,
+        category,
+        year: parseInt(year),
+        width: widthValue,
+      },
+    });
+
+    res.json(newImage);
+  } catch (error) {
+    console.error("Error creating existing image:", error);
+    res.status(500).json({ error: "Failed to create image" });
+  }
+});
+
 // Simple auth endpoint
 app.post("/api/auth", (req, res) => {
   const { password } = req.body;
@@ -216,9 +257,49 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
+// Initialize database
+async function initializeDatabase() {
+  try {
+    // Test database connection
+    await prisma.$connect();
+    console.log("Database connected successfully");
+
+    // Try to create the table using a simpler approach
+    try {
+      // First, try to query the table to see if it exists
+      await prisma.$queryRaw`SELECT COUNT(*) FROM gallery_images LIMIT 1`;
+      console.log("Table already exists");
+    } catch (error) {
+      console.log("Table doesn't exist, creating it...");
+
+      // Create table manually with proper SQLite syntax
+      await prisma.$executeRaw`
+        CREATE TABLE gallery_images (
+          id TEXT PRIMARY KEY,
+          src TEXT UNIQUE NOT NULL,
+          alt TEXT NOT NULL,
+          description TEXT NOT NULL,
+          category TEXT NOT NULL,
+          year INTEGER NOT NULL,
+          "order" INTEGER DEFAULT 0,
+          width INTEGER DEFAULT 1,
+          "createdAt" DATETIME DEFAULT CURRENT_TIMESTAMP,
+          "updatedAt" DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+      console.log("Table created successfully");
+    }
+
+    console.log("Database initialized successfully");
+  } catch (error) {
+    console.error("Database initialization failed:", error);
+  }
+}
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await initializeDatabase();
 });
 
 // Graceful shutdown
