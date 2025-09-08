@@ -1,0 +1,27 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model GalleryImage {
+  id          String   @id @default(cuid())
+  src         String   @unique
+  alt         String
+  description String
+  category    String   // "finished" or "wip"
+  year        Int
+  order       Int      @default(0)
+  width       Int      @default(1) // 1, 2, or 3 columns
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("gallery_images")
+}
+
