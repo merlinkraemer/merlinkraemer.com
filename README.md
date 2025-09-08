@@ -46,12 +46,14 @@ A personal gallery website with integrated admin panel for managing artwork and 
 ## 🛠️ Development
 
 ### Frontend
+
 ```bash
 npm install
 npm run dev
 ```
 
 ### Backend
+
 ```bash
 cd backend
 npm install
