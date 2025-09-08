@@ -5,5 +5,5 @@ personal linksammlung
 rebuild 09/25 w/
 
 - **Frontend**: React + TS + Vite
-- **Styling**: Tailwind
+- **CSS**: Tailwind
 - **Backend**: Node.js + Express + Prisma + SQLite
