@@ -1,2 +1,0 @@
-# merlinkraemer.com
-personal linksammlung
