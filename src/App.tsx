@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useGallery } from "@/hooks/useGallery";
-import MasonryGallery from "@/components/MasonryGallery";
+import { useGalleryContext } from "@/contexts/GalleryContext";
+import GalleryGrid from "@/components/GalleryGrid";
 import Lightbox from "@/components/Lightbox";
 import AdminPage from "@/pages/AdminPage";
-import "./App.css";
 
 function App() {
-  const { galleryData, loading, error } = useGallery();
+  const { galleryData, loading, error } = useGalleryContext();
   const [lightboxImageId, setLightboxImageId] = useState<string | null>(null);
 
   const openLightbox = (imageId: string) => {
@@ -17,6 +16,22 @@ function App() {
   const closeLightbox = () => {
     setLightboxImageId(null);
   };
+
+  // Memoize allImages array to prevent unnecessary re-renders
+  const allImages = useMemo(() => {
+    return [...galleryData.finished, ...galleryData.wip];
+  }, [galleryData.finished, galleryData.wip]);
+
+  // Memoize lightbox props to prevent unnecessary re-renders
+  const lightboxProps = useMemo(
+    () => ({
+      isOpen: !!lightboxImageId,
+      currentImageId: lightboxImageId,
+      allImages,
+      onClose: closeLightbox,
+    }),
+    [lightboxImageId, allImages]
+  );
 
   // Handle logo shake animation
   useEffect(() => {
@@ -37,27 +52,30 @@ function App() {
       }
     };
 
-    // Add event listeners to document and delegate to .logo elements
-    document.addEventListener("click", (e) => {
+    const handleClick = (e: Event) => {
       if ((e.target as HTMLElement).classList.contains("logo")) {
         handleLogoClick(e);
       }
-    });
+    };
 
-    document.addEventListener("animationend", (e) => {
+    const handleAnimationEndEvent = (e: Event) => {
       if ((e.target as HTMLElement).classList.contains("logo")) {
         handleAnimationEnd(e);
       }
-    });
+    };
+
+    // Add event listeners to document and delegate to .logo elements
+    document.addEventListener("click", handleClick);
+    document.addEventListener("animationend", handleAnimationEndEvent);
 
     return () => {
-      document.removeEventListener("click", handleLogoClick);
-      document.removeEventListener("animationend", handleAnimationEnd);
+      document.removeEventListener("click", handleClick);
+      document.removeEventListener("animationend", handleAnimationEndEvent);
     };
   }, []);
 
   const HomePage = () => (
-    <div className="force-90s min-h-screen" style={{ position: "relative" }}>
+    <div className="min-h-screen" style={{ position: "relative" }}>
       <div className="max-w-[1000px] mx-auto mb-20">
         <main className="px-[5%] py-8 pb-16">
           <div className="pt-[20vh]">
@@ -168,14 +186,14 @@ function App() {
         <section className="gallery my-12 px-[5%]">
           <i>finished 2025:</i>
           <div className="mt-6">
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading gallery...
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-8 text-red-500">{error}</div>
+            ) : galleryData.finished.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No finished artworks yet
+              </div>
             ) : (
-              <MasonryGallery
+              <GalleryGrid
                 images={galleryData.finished}
                 onImageClick={openLightbox}
               />
@@ -189,14 +207,14 @@ function App() {
         >
           <i>wip 2025:</i>
           <div className="mt-6">
-            {loading ? (
-              <div className="text-center py-8 text-gray-500">
-                Loading gallery...
-              </div>
-            ) : error ? (
+            {error ? (
               <div className="text-center py-8 text-red-500">{error}</div>
+            ) : galleryData.wip.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No works in progress yet
+              </div>
             ) : (
-              <MasonryGallery
+              <GalleryGrid
                 images={galleryData.wip}
                 onImageClick={openLightbox}
               />
@@ -223,22 +241,38 @@ function App() {
       </div>
 
       {/* Swiper Lightbox */}
-      <Lightbox
-        isOpen={!!lightboxImageId}
-        currentImageId={lightboxImageId}
-        allImages={[...galleryData.finished, ...galleryData.wip]}
-        onClose={closeLightbox}
-      />
+      <Lightbox {...lightboxProps} />
     </div>
   );
 
+  // Show loading screen only for initial gallery data loading
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="logo wiggle mb-6">
+            <img
+              src="/favicon.png"
+              alt="Logo"
+              className="logo"
+              style={{ width: "48px", height: "48px" }}
+            />
+          </div>
+          <div className="text-2xl font-bold text-gray-700">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/admin" element={<AdminPage />} />
-      </Routes>
-    </Router>
+    <div className="page-fade-in">
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </Router>
+    </div>
   );
 }
 

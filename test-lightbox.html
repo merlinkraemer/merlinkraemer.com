@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lightbox Performance Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      .info {
+        color: blue;
+      }
+      button {
+        margin: 5px;
+        padding: 10px;
+      }
+      .test-results {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 3px;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Lightbox Performance Test</h1>
+
+    <div class="test-section">
+      <h3>Image Cache Status</h3>
+      <div id="cache-status">Checking...</div>
+      <button onclick="checkImageCache()">Check Image Cache</button>
+      <button onclick="clearImageCache()">Clear Image Cache</button>
+    </div>
+
+    <div class="test-section">
+      <h3>Performance Tests</h3>
+      <button onclick="testLightboxOpen()">Test Lightbox Open Speed</button>
+      <button onclick="testImagePreloading()">Test Image Preloading</button>
+      <button onclick="testStatePersistence()">Test State Persistence</button>
+      <div id="performance-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Network Monitoring</h3>
+      <button onclick="startNetworkMonitoring()">Start Monitoring</button>
+      <button onclick="stopNetworkMonitoring()">Stop Monitoring</button>
+      <div id="network-results" class="test-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Memory Usage</h3>
+      <button onclick="checkMemoryUsage()">Check Memory</button>
+      <div id="memory-results" class="test-results"></div>
+    </div>
+
+    <script>
+      let networkRequests = [];
+      let monitoring = false;
+
+      function checkImageCache() {
+        const status = document.getElementById("cache-status");
+
+        // Check if we can access the global image cache
+        if (window.imageCache) {
+          const cacheSize = window.imageCache.size;
+          status.innerHTML = `
+            <div class="success">✅ Image cache accessible</div>
+            <div class="info">Cached images: ${cacheSize}</div>
+          `;
+        } else {
+          status.innerHTML = `
+            <div class="error">❌ Image cache not accessible</div>
+            <div class="info">Cache may be internal to React component</div>
+          `;
+        }
+      }
+
+      function clearImageCache() {
+        if (window.imageCache) {
+          window.imageCache.clear();
+          document.getElementById("cache-status").innerHTML =
+            '<div class="info">Image cache cleared</div>';
+        } else {
+          document.getElementById("cache-status").innerHTML =
+            '<div class="error">Cannot clear cache - not accessible</div>';
+        }
+      }
+
+      function testLightboxOpen() {
+        const results = document.getElementById("performance-results");
+        const startTime = performance.now();
+
+        // Simulate lightbox open
+        setTimeout(() => {
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+
+          results.innerHTML = `
+            <div class="info">Lightbox open simulation: ${duration.toFixed(
+              2
+            )}ms</div>
+            <div class="info">Note: This is a simulation. Real test requires actual lightbox interaction.</div>
+          `;
+        }, 100);
+      }
+
+      function testImagePreloading() {
+        const results = document.getElementById("performance-results");
+        const testImages = [
+          "https://via.placeholder.com/300x200/ff0000/ffffff?text=Test1",
+          "https://via.placeholder.com/300x200/00ff00/ffffff?text=Test2",
+          "https://via.placeholder.com/300x200/0000ff/ffffff?text=Test3",
+        ];
+
+        results.innerHTML =
+          '<div class="info">Testing image preloading...</div>';
+
+        const startTime = performance.now();
+        const preloadPromises = testImages.map((src) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve({ src, loaded: true });
+            img.onerror = () => resolve({ src, loaded: false });
+            img.src = src;
+          });
+        });
+
+        Promise.all(preloadPromises).then((results) => {
+          const endTime = performance.now();
+          const duration = endTime - startTime;
+          const loadedCount = results.filter((r) => r.loaded).length;
+
+          document.getElementById("performance-results").innerHTML = `
+            <div class="success">✅ Preloading test completed</div>
+            <div class="info">Duration: ${duration.toFixed(2)}ms</div>
+            <div class="info">Loaded: ${loadedCount}/${
+            testImages.length
+          } images</div>
+          `;
+        });
+      }
+
+      function testStatePersistence() {
+        const results = document.getElementById("performance-results");
+
+        // Test localStorage persistence
+        const testKey = "lightbox_test_state";
+        const testData = {
+          currentSlide: 5,
+          timestamp: Date.now(),
+          testImages: ["img1", "img2", "img3"],
+        };
+
+        try {
+          localStorage.setItem(testKey, JSON.stringify(testData));
+          const retrieved = JSON.parse(localStorage.getItem(testKey));
+
+          if (retrieved && retrieved.currentSlide === 5) {
+            results.innerHTML = `
+              <div class="success">✅ State persistence working</div>
+              <div class="info">Test data saved and retrieved successfully</div>
+            `;
+          } else {
+            results.innerHTML = `
+              <div class="error">❌ State persistence failed</div>
+              <div class="info">Data mismatch in localStorage</div>
+            `;
+          }
+
+          // Cleanup
+          localStorage.removeItem(testKey);
+        } catch (err) {
+          results.innerHTML = `
+            <div class="error">❌ State persistence error</div>
+            <div class="info">Error: ${err.message}</div>
+          `;
+        }
+      }
+
+      function startNetworkMonitoring() {
+        monitoring = true;
+        networkRequests = [];
+
+        // Override fetch to monitor requests
+        const originalFetch = window.fetch;
+        window.fetch = function (...args) {
+          const startTime = performance.now();
+          return originalFetch.apply(this, args).then((response) => {
+            const endTime = performance.now();
+            networkRequests.push({
+              url: args[0],
+              duration: endTime - startTime,
+              timestamp: Date.now(),
+              status: response.status,
+            });
+            return response;
+          });
+        };
+
+        document.getElementById("network-results").innerHTML =
+          '<div class="info">Network monitoring started. Open lightbox to see requests.</div>';
+      }
+
+      function stopNetworkMonitoring() {
+        monitoring = false;
+
+        // Restore original fetch
+        window.fetch = window.fetch;
+
+        const results = document.getElementById("network-results");
+        if (networkRequests.length > 0) {
+          const totalDuration = networkRequests.reduce(
+            (sum, req) => sum + req.duration,
+            0
+          );
+          const avgDuration = totalDuration / networkRequests.length;
+
+          results.innerHTML = `
+            <div class="success">✅ Network monitoring stopped</div>
+            <div class="info">Total requests: ${networkRequests.length}</div>
+            <div class="info">Average duration: ${avgDuration.toFixed(
+              2
+            )}ms</div>
+            <div class="info">Total duration: ${totalDuration.toFixed(
+              2
+            )}ms</div>
+          `;
+        } else {
+          results.innerHTML =
+            '<div class="info">No network requests captured</div>';
+        }
+      }
+
+      function checkMemoryUsage() {
+        const results = document.getElementById("memory-results");
+
+        if (performance.memory) {
+          const memory = performance.memory;
+          const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
+          const totalMB = Math.round(memory.totalJSHeapSize / 1024 / 1024);
+          const limitMB = Math.round(memory.jsHeapSizeLimit / 1024 / 1024);
+
+          results.innerHTML = `
+            <div class="info">Memory Usage:</div>
+            <div class="info">Used: ${usedMB} MB</div>
+            <div class="info">Total: ${totalMB} MB</div>
+            <div class="info">Limit: ${limitMB} MB</div>
+            <div class="info">Usage: ${Math.round(
+              (usedMB / limitMB) * 100
+            )}%</div>
+          `;
+        } else {
+          results.innerHTML =
+            '<div class="error">Memory API not available in this browser</div>';
+        }
+      }
+
+      // Initial checks
+      checkImageCache();
+      checkMemoryUsage();
+    </script>
+  </body>
+</html>

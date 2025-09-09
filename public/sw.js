@@ -1,6 +1,8 @@
-// Service worker for better caching and preventing blank page issues
-const CACHE_NAME = 'merlin-gallery-v2';
-const STATIC_CACHE = 'merlin-static-v2';
+// Service worker for caching static assets only
+const STATIC_CACHE = 'merlin-static-v3';
+
+// Detect if we're in development mode
+const isDevelopment = self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1';
 
 // Install event - cache static resources
 self.addEventListener('install', (event) => {
@@ -10,8 +12,8 @@ self.addEventListener('install', (event) => {
             .then((cache) => {
                 console.log('Service Worker: Caching static assets');
                 return cache.addAll([
-                    '/',
                     '/favicon.png',
+                    '/vite.svg'
                 ]);
             })
     );
@@ -41,56 +43,86 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // For static assets, try cache first, then network
-    event.respondWith(
-        caches.match(request)
-            .then((response) => {
-                if (response) {
-                    return response;
-                }
+    // For static assets (images, CSS, JS), try cache first, then network
+    if (request.destination === 'image' ||
+        request.destination === 'script' ||
+        request.destination === 'style' ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.jpeg') ||
+        url.pathname.endsWith('.webp') ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js')) {
 
-                return fetch(request)
-                    .then((response) => {
-                        // Don't cache if not a valid response
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
+        // In development mode, be less aggressive with caching
+        if (isDevelopment) {
+            // Skip caching for Vite HMR assets and development files
+            if (url.searchParams.has('t') || // Vite timestamp parameter
+                url.pathname.includes('src/') || // Source files
+                url.pathname.includes('@vite/') || // Vite client
+                url.pathname.includes('@react-refresh') || // React refresh
+                url.pathname.includes('node_modules/.vite/')) { // Vite deps
 
-                        // Clone the response
-                        const responseToCache = response.clone();
-                        caches.open(STATIC_CACHE)
-                            .then((cache) => {
-                                cache.put(request, responseToCache);
-                            });
+                console.log('Service Worker: Development mode - bypassing cache for:', request.url);
+                event.respondWith(fetch(request));
+                return;
+            }
+        }
 
+        event.respondWith(
+            caches.match(request)
+                .then((response) => {
+                    if (response) {
+                        console.log('Service Worker: Serving from cache:', request.url);
                         return response;
-                    })
-                    .catch(() => {
-                        // If all else fails, return a basic HTML page
-                        if (request.destination === 'document') {
-                            return new Response(
-                                `<!DOCTYPE html>
-                                <html>
-                                <head>
-                                    <title>Merlin's Gallery</title>
-                                    <meta charset="utf-8">
-                                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                                </head>
-                                <body>
-                                    <h1>Loading...</h1>
-                                    <p>Please refresh the page if this persists.</p>
-                                    <script>window.location.reload();</script>
-                                </body>
-                                </html>`,
-                                {
-                                    status: 200,
-                                    headers: { 'Content-Type': 'text/html' }
+                    }
+
+                    return fetch(request)
+                        .then((response) => {
+                            // Don't cache if not a valid response
+                            if (!response || response.status !== 200 || response.type !== 'basic') {
+                                return response;
+                            }
+
+                            // In development, don't cache everything
+                            if (isDevelopment) {
+                                // Only cache truly static assets in development
+                                const isStaticAsset = url.pathname.endsWith('.png') ||
+                                    url.pathname.endsWith('.jpg') ||
+                                    url.pathname.endsWith('.jpeg') ||
+                                    url.pathname.endsWith('.webp') ||
+                                    url.pathname.endsWith('.svg') ||
+                                    url.pathname === '/favicon.png' ||
+                                    url.pathname === '/vite.svg';
+
+                                if (!isStaticAsset) {
+                                    console.log('Service Worker: Development mode - not caching:', request.url);
+                                    return response;
                                 }
-                            );
-                        }
-                    });
-            })
-    );
+                            }
+
+                            // Clone the response and cache it
+                            const responseToCache = response.clone();
+                            caches.open(STATIC_CACHE)
+                                .then((cache) => {
+                                    cache.put(request, responseToCache);
+                                    console.log('Service Worker: Cached new asset:', request.url);
+                                });
+
+                            return response;
+                        })
+                        .catch(() => {
+                            console.log('Service Worker: Failed to fetch:', request.url);
+                            return fetch(request); // Fallback to network
+                        });
+                })
+        );
+        return;
+    }
+
+    // For all other requests (including HTML), always fetch fresh
+    event.respondWith(fetch(request));
 });
 
 // Activate event - clean up old caches
@@ -100,7 +132,7 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((cacheNames) => {
             return Promise.all(
                 cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME && cacheName !== STATIC_CACHE) {
+                    if (cacheName !== STATIC_CACHE) {
                         console.log('Service Worker: Deleting old cache:', cacheName);
                         return caches.delete(cacheName);
                     }

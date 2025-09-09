@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Worker Test</title>
+  </head>
+  <body>
+    <h1>Service Worker Test Page</h1>
+    <div id="status">Testing service worker...</div>
+    <div id="cache-info"></div>
+    <div id="network-info"></div>
+
+    <script>
+      // Test service worker registration
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then((registration) => {
+            document.getElementById("status").innerHTML =
+              "✅ Service Worker registered successfully";
+            console.log("SW registered:", registration);
+
+            // Test cache functionality
+            testCache();
+          })
+          .catch((error) => {
+            document.getElementById("status").innerHTML =
+              "❌ Service Worker registration failed: " + error;
+            console.error("SW registration failed:", error);
+          });
+      } else {
+        document.getElementById("status").innerHTML =
+          "❌ Service Workers not supported";
+      }
+
+      function testCache() {
+        // Check available caches
+        caches.keys().then((cacheNames) => {
+          const cacheInfo = document.getElementById("cache-info");
+          cacheInfo.innerHTML = "<h3>Available Caches:</h3><ul>";
+          cacheNames.forEach((cacheName) => {
+            cacheInfo.innerHTML += `<li>${cacheName}</li>`;
+          });
+          cacheInfo.innerHTML += "</ul>";
+
+          // Check cache contents
+          if (cacheNames.includes("merlin-static-v2")) {
+            caches.open("merlin-static-v2").then((cache) => {
+              cache.keys().then((requests) => {
+                const networkInfo = document.getElementById("network-info");
+                networkInfo.innerHTML = "<h3>Cached Assets:</h3><ul>";
+                requests.forEach((request) => {
+                  networkInfo.innerHTML += `<li>${request.url}</li>`;
+                });
+                networkInfo.innerHTML += "</ul>";
+              });
+            });
+          }
+        });
+      }
+
+      // Test network requests
+      setTimeout(() => {
+        fetch("/favicon.png")
+          .then((response) => {
+            console.log("Favicon fetch:", response.status, response.type);
+          })
+          .catch((error) => {
+            console.error("Favicon fetch failed:", error);
+          });
+      }, 2000);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Caching Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
+      .test-section {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      .info {
+        color: blue;
+      }
+      button {
+        margin: 5px;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>React Caching Test Page</h1>
+
+    <div class="test-section">
+      <h3>Cache Status</h3>
+      <div id="cache-status">Checking...</div>
+      <button onclick="checkCache()">Check Cache</button>
+      <button onclick="clearCache()">Clear Cache</button>
+    </div>
+
+    <div class="test-section">
+      <h3>Network Simulation</h3>
+      <button onclick="simulateOffline()">Simulate Offline</button>
+      <button onclick="simulateOnline()">Simulate Online</button>
+      <div id="network-status">Online</div>
+    </div>
+
+    <div class="test-section">
+      <h3>Performance Test</h3>
+      <button onclick="testPerformance()">Test Load Performance</button>
+      <div id="performance-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h3>Cache Invalidation Test</h3>
+      <button onclick="testCacheInvalidation()">Test Cache Invalidation</button>
+      <div id="invalidation-results"></div>
+    </div>
+
+    <script>
+      const CACHE_KEY = "merlin_gallery_cache";
+      const CACHE_TIMESTAMP_KEY = "merlin_gallery_timestamp";
+
+      function checkCache() {
+        const status = document.getElementById("cache-status");
+        try {
+          const cached = localStorage.getItem(CACHE_KEY);
+          const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+          if (cached && timestamp) {
+            const cacheAge = Date.now() - parseInt(timestamp);
+            const ageMinutes = Math.round(cacheAge / (1000 * 60));
+            status.innerHTML = `
+              <div class="success">✅ Cache exists</div>
+              <div class="info">Age: ${ageMinutes} minutes</div>
+              <div class="info">Size: ${Math.round(
+                cached.length / 1024
+              )} KB</div>
+            `;
+          } else {
+            status.innerHTML = '<div class="error">❌ No cache found</div>';
+          }
+        } catch (err) {
+          status.innerHTML = `<div class="error">❌ Error: ${err.message}</div>`;
+        }
+      }
+
+      function clearCache() {
+        localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem(CACHE_TIMESTAMP_KEY);
+        document.getElementById("cache-status").innerHTML =
+          '<div class="info">Cache cleared</div>';
+      }
+
+      function simulateOffline() {
+        // This would need to be implemented in the actual app
+        document.getElementById("network-status").innerHTML =
+          '<div class="error">Offline (simulated)</div>';
+      }
+
+      function simulateOnline() {
+        document.getElementById("network-status").innerHTML =
+          '<div class="success">Online</div>';
+      }
+
+      function testPerformance() {
+        const results = document.getElementById("performance-results");
+        const startTime = performance.now();
+
+        // Simulate checking cache
+        const cached = localStorage.getItem(CACHE_KEY);
+        const endTime = performance.now();
+        const duration = endTime - startTime;
+
+        results.innerHTML = `
+          <div class="info">Cache access time: ${duration.toFixed(2)}ms</div>
+          <div class="info">Cache hit: ${cached ? "Yes" : "No"}</div>
+        `;
+      }
+
+      function testCacheInvalidation() {
+        const results = document.getElementById("invalidation-results");
+        const timestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+
+        if (timestamp) {
+          const cacheAge = Date.now() - parseInt(timestamp);
+          const isExpired = cacheAge > 5 * 60 * 1000; // 5 minutes
+
+          results.innerHTML = `
+            <div class="info">Cache age: ${Math.round(cacheAge / 1000)}s</div>
+            <div class="${isExpired ? "error" : "success"}">
+              ${isExpired ? "❌ Cache expired" : "✅ Cache valid"}
+            </div>
+          `;
+        } else {
+          results.innerHTML =
+            '<div class="error">No cache timestamp found</div>';
+        }
+      }
+
+      // Initial check
+      checkCache();
+    </script>
+  </body>
+</html>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { authApi, galleryApi } from "@/services/api";
-import type { GalleryData, GalleryImage } from "@/types/gallery";
+import { authApi } from "@/services/api";
+import { useGalleryContext } from "@/contexts/GalleryContext";
+import type { GalleryImage } from "@/types/gallery";
 import LoginForm from "@/components/admin/LoginForm";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ImageUpload from "@/components/admin/ImageUpload";
@@ -8,12 +9,16 @@ import ImageList from "@/components/admin/ImageList";
 
 const AdminPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [galleryData, setGalleryData] = useState<GalleryData>({
-    finished: [],
-    wip: [],
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    galleryData,
+    loading,
+    error,
+    refreshGallery,
+    updateImage,
+    deleteImage,
+    addImage,
+    reorderImages,
+  } = useGalleryContext();
   const [links, setLinks] = useState([
     {
       id: 1,
@@ -59,31 +64,14 @@ const AdminPage: React.FC = () => {
     // Check if user is already logged in
     if (authApi.isLoggedIn()) {
       setIsLoggedIn(true);
-      fetchGallery();
-    } else {
-      setLoading(false);
     }
   }, []);
-
-  const fetchGallery = async () => {
-    try {
-      setLoading(true);
-      const data = await galleryApi.getGallery();
-      setGalleryData(data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to load gallery data");
-      console.error("Error fetching gallery:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogin = async (password: string) => {
     const success = await authApi.login(password);
     if (success) {
       setIsLoggedIn(true);
-      await fetchGallery();
+      await refreshGallery();
     } else {
       setError("Invalid password");
     }
@@ -92,7 +80,6 @@ const AdminPage: React.FC = () => {
   const handleLogout = () => {
     authApi.logout();
     setIsLoggedIn(false);
-    setGalleryData({ finished: [], wip: [] });
   };
 
   const handleLinkTextChange = (id: number, newText: string) => {
@@ -132,32 +119,30 @@ const AdminPage: React.FC = () => {
     setEditingLinkId(null);
   };
 
-  const handleImageAdded = async () => {
-    await fetchGallery();
+  const handleImageAdded = async (image: GalleryImage) => {
+    addImage(image);
   };
 
-  const handleImageUpdated = async () => {
-    await fetchGallery();
+  const handleImageUpdated = async (
+    id: string,
+    updates: Partial<GalleryImage>
+  ) => {
+    updateImage(id, updates);
   };
 
-  const handleImageDeleted = async () => {
-    await fetchGallery();
+  const handleImageDeleted = async (id: string) => {
+    deleteImage(id);
   };
 
   const handleImageReordered = (reorderedImages: GalleryImage[]) => {
-    // Update local state immediately for better UX
-    setGalleryData((prev) => ({
-      ...prev,
-      finished: reorderedImages.filter((img) => img.category === "finished"),
-      wip: reorderedImages.filter((img) => img.category === "wip"),
-    }));
+    reorderImages(reorderedImages);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>

@@ -20,31 +20,18 @@ api.interceptors.request.use((config) => {
 export const galleryApi = {
   // Get all gallery images
   getGallery: async (): Promise<GalleryData> => {
-    try {
-      console.log("API: Fetching gallery data...");
-      const response = await api.get("/gallery");
-      console.log("API: Gallery data fetched successfully");
-      return response.data;
-    } catch (error: any) {
-      console.error("Error fetching gallery:", error);
-      // Return empty gallery data as fallback
-      return { finished: [], wip: [] };
-    }
+    const response = await api.get("/gallery");
+    return response.data;
   },
 
   // Add new image (admin only)
   addImage: async (formData: FormData): Promise<GalleryImage> => {
     try {
-      console.log("API: Attempting to upload image...");
-      console.log("API: Base URL:", API_BASE_URL);
-      console.log("API: Admin token:", localStorage.getItem("admin_token"));
-
       const response = await api.post("/gallery", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("API: Upload successful:", response.data);
       return response.data;
     } catch (error: any) {
       console.error("API: Upload failed:", error);
