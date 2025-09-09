@@ -79,12 +79,20 @@ a:hover {
 .gallery-item img {
   width: 100%;
   height: auto;
-  border-radius: 4px;
+  border-radius: 0;
   cursor: pointer;
+  margin: 0;
+  padding: 0;
+  display: block;
 }
 
 .gallery-item img:hover:not(.loading) {
   opacity: 0.9;
+}
+
+.gallery-item p {
+  margin: 0;
+  padding: 4px 0 0 0;
 }
 
 /* Prevent hover effects during loading in lightbox */
@@ -239,9 +247,11 @@ img.loading {
   color: white !important;
   background: transparent !important;
   border: none !important;
-  font-size: 18px !important;
+  font-size: 16px !important;
   font-family: "Courier New", monospace !important;
   cursor: pointer !important;
+  width: 24px !important;
+  height: 24px !important;
 }
 
 .lightbox-container .swiper-button-next:after {
@@ -285,12 +295,29 @@ img.loading {
   z-index: 1000;
 }
 
+@media (max-width: 600px) {
+  .lightbox {
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 .lightbox-content {
   position: relative;
   width: 100%;
   height: 100%;
   max-width: 95vw;
   max-height: 95vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .lightbox-content {
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .lightbox-close-button {

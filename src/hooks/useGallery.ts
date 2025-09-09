@@ -106,7 +106,10 @@ export function useGallery(): UseGalleryReturn {
           const cachedData = loadFromCache();
           if (cachedData) {
             setGalleryData(cachedData);
-            setLoading(false);
+            // Add a tiny bit longer loading time for better UX
+            setTimeout(() => {
+              setLoading(false);
+            }, 800);
             initializedRef.current = true;
             globalInitialized = true;
 
