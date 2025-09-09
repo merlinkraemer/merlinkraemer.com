@@ -191,7 +191,7 @@ export default function Lightbox({
           </div>
         )}
 
-        <div 
+        <div
           className="lightbox-container"
           onClick={onClose}
           style={{ height: "100%", width: "100%" }}
@@ -207,68 +207,70 @@ export default function Lightbox({
             style={{ height: "100%", width: "100%" }}
             onSwiper={setSwiperInstance}
           >
-          {allImages.map((image) => {
-            const isPreloaded = isImagePreloaded(image.id);
-            const hasError = hasImageError(image.id);
-            const isLoading = imageLoading.has(image.id) && !isPreloaded;
+            {allImages.map((image) => {
+              const isPreloaded = isImagePreloaded(image.id);
+              const hasError = hasImageError(image.id);
+              const isLoading = imageLoading.has(image.id) && !isPreloaded;
 
-            return (
-              <SwiperSlide key={image.id}>
-                <div className="swiper-zoom-container">
-                  {hasError ? (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-800">
-                      <div className="text-center text-white">
-                        <div className="text-sm mb-2">Image failed to load</div>
-                        <button
-                          onClick={() => {
-                            setImageErrors((prev) => {
-                              const newSet = new Set(prev);
-                              newSet.delete(image.id);
-                              return newSet;
-                            });
-                            handleImageLoadStart(image.id);
-                          }}
-                          className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 border border-blue-400"
-                        >
-                          Retry
-                        </button>
+              return (
+                <SwiperSlide key={image.id}>
+                  <div className="swiper-zoom-container">
+                    {hasError ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-800">
+                        <div className="text-center text-white">
+                          <div className="text-sm mb-2">
+                            Image failed to load
+                          </div>
+                          <button
+                            onClick={() => {
+                              setImageErrors((prev) => {
+                                const newSet = new Set(prev);
+                                newSet.delete(image.id);
+                                return newSet;
+                              });
+                              handleImageLoadStart(image.id);
+                            }}
+                            className="text-xs text-blue-400 hover:text-blue-300 px-2 py-1 border border-blue-400"
+                          >
+                            Retry
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="relative w-full h-full">
-                      {isLoading && (
-                        <div className="absolute inset-0 bg-gray-800 flex items-center justify-center z-10">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
-                        </div>
-                      )}
-                      <img
-                        src={image.src}
-                        alt={image.alt}
-                        data-swiper-zoom="2"
-                        onLoad={() => handleImageLoad(image.id)}
-                        onError={() => handleImageError(image.id)}
-                        onLoadStart={() => handleImageLoadStart(image.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className={clsx(
-                          "max-w-full max-h-full object-contain cursor-zoom-in",
-                          {
-                            "loading opacity-0": isLoading,
-                            "transition-opacity duration-300 ease-in-out":
-                              !isPreloaded,
-                          }
+                    ) : (
+                      <div className="relative w-full h-full">
+                        {isLoading && (
+                          <div className="absolute inset-0 bg-gray-800 flex items-center justify-center z-10">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto"></div>
+                          </div>
                         )}
-                      />
-                      {isPreloaded && (
-                        <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 opacity-75">
-                          ✓ Cached
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </SwiperSlide>
-            );
-          })}
+                        <img
+                          src={image.src}
+                          alt={image.alt}
+                          data-swiper-zoom="2"
+                          onLoad={() => handleImageLoad(image.id)}
+                          onError={() => handleImageError(image.id)}
+                          onLoadStart={() => handleImageLoadStart(image.id)}
+                          onClick={(e) => e.stopPropagation()}
+                          className={clsx(
+                            "max-w-full max-h-full object-contain cursor-zoom-in",
+                            {
+                              "loading opacity-0": isLoading,
+                              "transition-opacity duration-300 ease-in-out":
+                                !isPreloaded,
+                            }
+                          )}
+                        />
+                        {isPreloaded && (
+                          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 opacity-75">
+                            ✓ Cached
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </SwiperSlide>
+              );
+            })}
           </Swiper>
         </div>
       </div>

@@ -145,10 +145,7 @@ const HomePage = ({ galleryData, error, openLightbox, lightboxProps }) => (
               No works in progress yet
             </div>
           ) : (
-            <GalleryGrid
-              images={galleryData.wip}
-              onImageClick={openLightbox}
-            />
+            <GalleryGrid images={galleryData.wip} onImageClick={openLightbox} />
           )}
         </div>
       </section>
