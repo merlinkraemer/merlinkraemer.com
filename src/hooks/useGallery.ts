@@ -168,81 +168,80 @@ export function useGallery(): UseGalleryReturn {
     await fetchGalleryRef.current(true);
   }, []); // No dependencies needed with ref pattern
 
-  // Optimistic updates
+  // Optimistic updates with error handling
   const updateImage = useCallback(
-    (id: string, updates: Partial<GalleryImage>) => {
-      setGalleryData((prev) => {
-        const newFinished = prev.finished.map((img) =>
+    async (id: string, updates: Partial<GalleryImage>) => {
+      const originalData = galleryData;
+      const optimisticData = {
+        finished: originalData.finished.map((img) =>
           img.id === id ? { ...img, ...updates } : img
-        );
-        const newWip = prev.wip.map((img) =>
+        ),
+        wip: originalData.wip.map((img) =>
           img.id === id ? { ...img, ...updates } : img
-        );
+        ),
+      };
+      setGalleryData(optimisticData);
+      saveToCache(optimisticData);
 
-        // Only update if data actually changed
-        const finishedChanged = newFinished.some(
-          (img, index) => img !== prev.finished[index]
-        );
-        const wipChanged = newWip.some((img, index) => img !== prev.wip[index]);
-
-        if (!finishedChanged && !wipChanged) {
-          return prev; // No changes, return same reference
-        }
-
-        const newData = { finished: newFinished, wip: newWip };
-        saveToCache(newData);
-        return newData;
-      });
+      try {
+        await galleryApi.updateImage(id, updates);
+      } catch (err) {
+        setError("Failed to update image. Please try again.");
+        setGalleryData(originalData);
+        saveToCache(originalData);
+      }
     },
-    [saveToCache]
+    [galleryData, saveToCache]
   );
 
   const deleteImage = useCallback(
-    (id: string) => {
-      setGalleryData((prev) => {
-        const newFinished = prev.finished.filter((img) => img.id !== id);
-        const newWip = prev.wip.filter((img) => img.id !== id);
+    async (id: string) => {
+      const originalData = galleryData;
+      const optimisticData = {
+        finished: originalData.finished.filter((img) => img.id !== id),
+        wip: originalData.wip.filter((img) => img.id !== id),
+      };
+      setGalleryData(optimisticData);
+      saveToCache(optimisticData);
 
-        // Only update if data actually changed
-        const finishedChanged = newFinished.length !== prev.finished.length;
-        const wipChanged = newWip.length !== prev.wip.length;
-
-        if (!finishedChanged && !wipChanged) {
-          return prev; // No changes, return same reference
-        }
-
-        const newData = { finished: newFinished, wip: newWip };
-        saveToCache(newData);
-        return newData;
-      });
+      try {
+        await galleryApi.deleteImage(id);
+      } catch (err) {
+        setError("Failed to delete image. Please try again.");
+        setGalleryData(originalData);
+        saveToCache(originalData);
+      }
     },
-    [saveToCache]
+    [galleryData, saveToCache]
   );
 
   const addImage = useCallback(
-    (image: GalleryImage) => {
-      setGalleryData((prev) => {
-        const newFinished =
+    async (image: GalleryImage) => {
+      const originalData = galleryData;
+      const optimisticData = {
+        finished:
           image.category === "finished"
-            ? [...prev.finished, image]
-            : prev.finished;
-        const newWip =
-          image.category === "wip" ? [...prev.wip, image] : prev.wip;
+            ? [...originalData.finished, image]
+            : originalData.finished,
+        wip:
+          image.category === "wip"
+            ? [...originalData.wip, image]
+            : originalData.wip,
+      };
+      setGalleryData(optimisticData);
+      saveToCache(optimisticData);
 
-        // Only update if data actually changed
-        const finishedChanged = newFinished.length !== prev.finished.length;
-        const wipChanged = newWip.length !== prev.wip.length;
-
-        if (!finishedChanged && !wipChanged) {
-          return prev; // No changes, return same reference
-        }
-
-        const newData = { finished: newFinished, wip: newWip };
-        saveToCache(newData);
-        return newData;
-      });
+      try {
+        // This assumes the API call for addImage returns the final image object
+        // If not, a refresh might be needed.
+        await galleryApi.addImage(image);
+      } catch (err) {
+        setError("Failed to add image. Please try again.");
+        setGalleryData(originalData);
+        saveToCache(originalData);
+      }
     },
-    [saveToCache]
+    [galleryData, saveToCache]
   );
 
   const reorderImages = useCallback(

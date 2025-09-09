@@ -136,8 +136,12 @@ app.post(
       });
 
       res.json(newImage);
-    } catch (error) {
-      console.error("Error creating image:", error);
+    } catch (error: any) {
+      console.error("Error creating image:", {
+        message: error.message,
+        stack: error.stack,
+        body: req.body,
+      });
       res.status(500).json({ error: "Failed to create image" });
     }
   }
@@ -170,41 +174,55 @@ app.put("/api/gallery/:id", authenticate, async (req, res) => {
     });
 
     res.json(updatedImage);
-  } catch (error) {
-    console.error("Error updating image:", error);
-    res.status(500).json({ error: "Failed to update image" });
+  } catch (error: any) {
+    console.error(`Error updating image ${req.params.id}:`, {
+      message: error.message,
+      stack: error.stack,
+      body: req.body,
+    });
+    res.status(500).json({ error: `Failed to update image ${req.params.id}` });
   }
 });
 
 // Delete image
 app.delete("/api/gallery/:id", authenticate, async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-
     // Get image to extract filename for R2 deletion
     const image = await prisma.galleryImage.findUnique({ where: { id } });
     if (!image) {
       return res.status(404).json({ error: "Image not found" });
     }
 
-    // Extract filename from URL
-    const fileName = image.src.split("/").pop();
-
-    // Delete from R2
-    const deleteCommand = new DeleteObjectCommand({
-      Bucket: process.env.R2_BUCKET_NAME!,
-      Key: fileName!,
-    });
-
-    await s3Client.send(deleteCommand);
-
-    // Delete from database
+    // Delete from database first
     await prisma.galleryImage.delete({ where: { id } });
 
+    // Then, delete from R2
+    try {
+      const fileName = image.src.split("/").pop();
+      if (fileName) {
+        const deleteCommand = new DeleteObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME!,
+          Key: fileName!,
+        });
+        await s3Client.send(deleteCommand);
+      }
+    } catch (s3Error: any) {
+      // If S3 deletion fails, log it but don't fail the whole request,
+      // as the database entry is already gone.
+      console.error(`Failed to delete image ${id} from S3/R2:`, {
+        message: s3Error.message,
+        stack: s3Error.stack,
+      });
+    }
+
     res.json({ success: true });
-  } catch (error) {
-    console.error("Error deleting image:", error);
-    res.status(500).json({ error: "Failed to delete image" });
+  } catch (error: any) {
+    console.error(`Error deleting image ${id}:`, {
+      message: error.message,
+      stack: error.stack,
+    });
+    res.status(500).json({ error: `Failed to delete image ${id}` });
   }
 });
 
@@ -236,9 +254,13 @@ app.post("/api/gallery/existing", authenticate, async (req, res) => {
     });
 
     res.json(newImage);
-  } catch (error) {
-    console.error("Error creating existing image:", error);
-    res.status(500).json({ error: "Failed to create image" });
+  } catch (error: any) {
+    console.error("Error creating existing image:", {
+      message: error.message,
+      stack: error.stack,
+      body: req.body,
+    });
+    res.status(500).json({ error: "Failed to create existing image" });
   }
 });
 
@@ -321,49 +343,9 @@ app.get("/health", (req, res) => {
   res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Initialize database
-async function initializeDatabase() {
-  try {
-    // Test database connection
-    await prisma.$connect();
-    console.log("Database connected successfully");
-
-    // Try to create the table using a simpler approach
-    try {
-      // First, try to query the table to see if it exists
-      await prisma.$queryRaw`SELECT COUNT(*) FROM gallery_images LIMIT 1`;
-      console.log("Table already exists");
-    } catch (error) {
-      console.log("Table doesn't exist, creating it...");
-
-      // Create table manually with proper SQLite syntax
-      await prisma.$executeRaw`
-        CREATE TABLE gallery_images (
-          id TEXT PRIMARY KEY,
-          src TEXT UNIQUE NOT NULL,
-          alt TEXT NOT NULL,
-          description TEXT NOT NULL,
-          category TEXT NOT NULL,
-          year INTEGER NOT NULL,
-          "order" INTEGER DEFAULT 0,
-          width INTEGER DEFAULT 1,
-          "createdAt" DATETIME DEFAULT CURRENT_TIMESTAMP,
-          "updatedAt" DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `;
-      console.log("Table created successfully");
-    }
-
-    console.log("Database initialized successfully");
-  } catch (error) {
-    console.error("Database initialization failed:", error);
-  }
-}
-
 // Start server
-app.listen(PORT, async () => {
+app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  await initializeDatabase();
 });
 
 // Graceful shutdown

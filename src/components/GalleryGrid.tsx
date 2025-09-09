@@ -25,7 +25,7 @@ export default function GalleryGrid({
             onClick={() => onImageClick(image.id)}
           />
           <div className="p-2 bg-white">
-            <i className="text-sm text-gray-600">{image.description}</i>
+            <p className="text-sm text-gray-600">{image.description}</p>
           </div>
         </div>
       ))}

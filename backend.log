@@ -1,0 +1,8 @@
+
+> merlin-gallery-backend@1.0.0 dev
+> tsx watch src/index.ts
+
+Server running on port 3001
+Database connected successfully
+Table already exists
+Database initialized successfully
