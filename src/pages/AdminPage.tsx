@@ -1,64 +1,178 @@
 import React, { useState, useEffect } from "react";
-import { authApi } from "@/services/api";
+import { authApi, linkApi } from "@/services/api";
 import { useGalleryContext } from "@/contexts/GalleryContext";
 import type { GalleryImage } from "@/types/gallery";
 import LoginForm from "@/components/admin/LoginForm";
 import AdminLayout from "@/components/admin/AdminLayout";
 import ImageUpload from "@/components/admin/ImageUpload";
 import ImageList from "@/components/admin/ImageList";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+interface Link {
+  id: number;
+  text: string;
+  url: string;
+}
+
+interface SortableLinkProps {
+  link: Link;
+  onSave: (id: number) => void;
+  onDelete: (id: number) => void;
+  onTextChange: (id: number, text: string) => void;
+  onUrlChange: (id: number, url: string) => void;
+}
+
+const SortableLink: React.FC<SortableLinkProps> = ({
+  link,
+  onSave,
+  onDelete,
+  onTextChange,
+  onUrlChange,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: link.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        ...style,
+        marginBottom: "15px",
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+      }}
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        style={{
+          cursor: "move",
+          padding: "5px",
+          border: "1px solid #ccc",
+          backgroundColor: "#f0f0f0",
+          userSelect: "none",
+          flexShrink: 0,
+        }}
+        title="Drag to reorder"
+      >
+        ≡
+      </div>
+
+      <div
+        className="link-row"
+        style={{
+          display: "flex",
+          gap: "10px",
+          width: "100%",
+          alignItems: "center",
+        }}
+      >
+        <input
+          type="text"
+          value={link.text}
+          onChange={(e) => onTextChange(link.id, e.target.value)}
+          className="link-input"
+          style={{
+            flex: "1",
+            minWidth: "200px",
+            padding: "8px",
+            border: "1px solid #ccc",
+          }}
+        />
+        <input
+          type="url"
+          value={link.url}
+          onChange={(e) => onUrlChange(link.id, e.target.value)}
+          className="link-input"
+          style={{
+            flex: "1",
+            minWidth: "250px",
+            padding: "8px",
+            border: "1px solid #ccc",
+          }}
+        />
+        <div
+          className="link-buttons"
+          style={{
+            display: "flex",
+            gap: "10px",
+            flexShrink: "0",
+          }}
+        >
+          <button
+            onClick={() => onSave(link.id)}
+            className="link-button"
+            style={{
+              padding: "8px 15px",
+              border: "1px solid #ccc",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Save
+          </button>
+          <button
+            onClick={() => onDelete(link.id)}
+            className="link-button"
+            style={{
+              color: "red",
+              padding: "8px 15px",
+              border: "1px solid #ccc",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const AdminPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const {
-    galleryData,
-    loading,
-    error,
-    refreshGallery,
-    updateImage,
-    deleteImage,
-    addImage,
-    reorderImages,
-  } = useGalleryContext();
-  const [links, setLinks] = useState([
-    {
-      id: 1,
-      text: "@ OA 26-07-2025 - liveset",
-      url: "https://soundcloud.com/merlin040/oa-260725",
-    },
-    {
-      id: 2,
-      text: '"Live aus der Werkstatt 1" - Mix',
-      url: "https://soundcloud.com/merlin040/live-aus-der-werkstatt-1",
-    },
-    {
-      id: 3,
-      text: '"Keys Don\'t Match" - Stimming, Dominique Fricot - Merlin Remix',
-      url: "https://soundcloud.com/merlin040/keys-dont-match-remix",
-    },
-    {
-      id: 4,
-      text: "@ Studio Boschstraße 20.04.2025 - Mix",
-      url: "https://soundcloud.com/merlin040/set-20042025",
-    },
-    {
-      id: 5,
-      text: '"Der starke Wanja" EP',
-      url: "https://soundcloud.com/merlin040/sets/wanja",
-    },
-    { id: 6, text: "SoundCloud 🎶", url: "https://soundcloud.com/merlin040" },
-    {
-      id: 7,
-      text: "Bandcamp (Sunset Records) 🌞",
-      url: "https://sunsetrecords-040.bandcamp.com/",
-    },
-    { id: 8, text: "Instagram 🎨", url: "https://instagram.com/merlinkraemer" },
-    { id: 9, text: "TikTok", url: "https://www.tiktok.com/@merlinsroom" },
-    { id: 10, text: "YouTube", url: "https://www.youtube.com/@merlins-room" },
-    { id: 11, text: "Twitch", url: "https://www.twitch.tv/merlinsroom" },
-  ]);
+  const { galleryData, loading, error, refreshGallery, reorderImages } =
+    useGalleryContext();
+  const [links, setLinks] = useState<Link[]>([]);
+  const [linksLoading, setLinksLoading] = useState(true);
   const [newLinkText, setNewLinkText] = useState("");
   const [newLinkUrl, setNewLinkUrl] = useState("");
-  const [editingLinkId, setEditingLinkId] = useState<number | null>(null);
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     // Check if user is already logged in
@@ -67,13 +181,33 @@ const AdminPage: React.FC = () => {
     }
   }, []);
 
+  // Load links from API
+  const loadLinks = async () => {
+    try {
+      setLinksLoading(true);
+      const linksData = await linkApi.getLinks();
+      setLinks(linksData);
+    } catch (error) {
+      console.error("Error loading links:", error);
+    } finally {
+      setLinksLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      loadLinks();
+    }
+  }, [isLoggedIn]);
+
   const handleLogin = async (password: string) => {
     const success = await authApi.login(password);
     if (success) {
       setIsLoggedIn(true);
       await refreshGallery();
     } else {
-      setError("Invalid password");
+      // Login failed - the LoginForm component will handle showing the error
+      console.error("Login failed");
     }
   };
 
@@ -94,44 +228,152 @@ const AdminPage: React.FC = () => {
     );
   };
 
-  const handleDeleteLink = (id: number) => {
-    setLinks(links.filter((link) => link.id !== id));
-  };
-
-  const handleAddLink = () => {
-    if (newLinkText.trim() && newLinkUrl.trim()) {
-      const newId = Math.max(...links.map((l) => l.id)) + 1;
-      setLinks([...links, { id: newId, text: newLinkText, url: newLinkUrl }]);
-      setNewLinkText("");
-      setNewLinkUrl("");
+  const handleDeleteLink = async (id: number) => {
+    try {
+      await linkApi.deleteLink(id);
+      setLinks(links.filter((link) => link.id !== id));
+    } catch (error) {
+      console.error("Error deleting link:", error);
     }
   };
 
-  const handleEditLink = (id: number) => {
-    setEditingLinkId(id);
+  const handleAddLink = async () => {
+    if (newLinkText.trim() && newLinkUrl.trim()) {
+      try {
+        const newLink = await linkApi.createLink(newLinkText, newLinkUrl);
+        setLinks([...links, newLink]);
+        setNewLinkText("");
+        setNewLinkUrl("");
+      } catch (error) {
+        console.error("Error creating link:", error);
+      }
+    }
   };
 
-  const handleSaveLink = () => {
-    setEditingLinkId(null);
+  // Separate links into two categories
+  const regularLinks = links.filter(
+    (link) =>
+      !link.text.includes("SoundCloud") &&
+      !link.text.includes("Bandcamp") &&
+      !link.text.includes("Instagram") &&
+      !link.text.includes("TikTok") &&
+      !link.text.includes("YouTube") &&
+      !link.text.includes("Twitch")
+  );
+
+  const socialLinks = links.filter(
+    (link) =>
+      link.text.includes("SoundCloud") ||
+      link.text.includes("Bandcamp") ||
+      link.text.includes("Instagram") ||
+      link.text.includes("TikTok") ||
+      link.text.includes("YouTube") ||
+      link.text.includes("Twitch")
+  );
+
+  const handleSaveLink = async (id: number) => {
+    console.log("handleSaveLink called with id:", id);
+    const link = links.find((l) => l.id === id);
+    console.log("Found link:", link);
+    if (link) {
+      try {
+        console.log(
+          "Calling linkApi.updateLink with:",
+          link.id,
+          link.text,
+          link.url
+        );
+        const result = await linkApi.updateLink(link.id, link.text, link.url);
+        console.log("Update result:", result);
+      } catch (error) {
+        console.error("Error updating link:", error);
+      }
+    }
   };
 
-  const handleCancelEdit = () => {
-    setEditingLinkId(null);
+  const handleLinkDragEnd = async (event: DragEndEvent) => {
+    console.log("handleLinkDragEnd called with event:", event);
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      console.log("Reordering from", active.id, "to", over?.id);
+
+      // Find which section the active item belongs to
+      const activeItem = links.find((item) => item.id === active.id);
+      const overItem = links.find((item) => item.id === over?.id);
+
+      if (!activeItem || !overItem) {
+        console.error("Could not find active or over item");
+        return;
+      }
+
+      // Check if both items are in the same section
+      const activeIsRegular = regularLinks.some(
+        (link) => link.id === active.id
+      );
+      const overIsRegular = regularLinks.some((link) => link.id === over?.id);
+
+      if (activeIsRegular !== overIsRegular) {
+        console.log("Cross-section drag - moving between regular and social");
+        // Cross-section drag - move the item to the other section
+        const newLinks = [...links];
+        const activeIndex = newLinks.findIndex((item) => item.id === active.id);
+        const overIndex = newLinks.findIndex((item) => item.id === over?.id);
+
+        // Remove active item and insert it at the over position
+        const [movedItem] = newLinks.splice(activeIndex, 1);
+        newLinks.splice(overIndex, 0, movedItem);
+
+        setLinks(newLinks);
+
+        try {
+          console.log("Calling linkApi.reorderLinks for cross-section move");
+          await linkApi.reorderLinks(newLinks);
+          console.log("Cross-section reorder successful");
+        } catch (error) {
+          console.error("Error reordering links:", error);
+          setLinks(links);
+        }
+      } else {
+        console.log("Same-section drag - reordering within section");
+        // Same-section drag - reorder within the section
+        const newLinks = arrayMove(
+          links,
+          links.findIndex((item) => item.id === active.id),
+          links.findIndex((item) => item.id === over?.id)
+        );
+
+        console.log("New links order:", newLinks);
+        setLinks(newLinks);
+
+        try {
+          console.log("Calling linkApi.reorderLinks for same-section move");
+          await linkApi.reorderLinks(newLinks);
+          console.log("Same-section reorder successful");
+        } catch (error) {
+          console.error("Error reordering links:", error);
+          setLinks(links);
+        }
+      }
+    }
   };
 
-  const handleImageAdded = async (image: GalleryImage) => {
-    addImage(image);
+  const handleImageAdded = async () => {
+    // The ImageUpload component handles the API call and calls this callback
+    // We just need to refresh the gallery to get the latest data
+    await refreshGallery();
   };
 
-  const handleImageUpdated = async (
-    id: string,
-    updates: Partial<GalleryImage>
-  ) => {
-    updateImage(id, updates);
+  const handleImageUpdated = async () => {
+    // The ImageList component handles the API call and calls this callback
+    // We just need to refresh the gallery to get the latest data
+    await refreshGallery();
   };
 
-  const handleImageDeleted = async (id: string) => {
-    deleteImage(id);
+  const handleImageDeleted = async () => {
+    // The ImageList component handles the API call and calls this callback
+    // We just need to refresh the gallery to get the latest data
+    await refreshGallery();
   };
 
   const handleImageReordered = (reorderedImages: GalleryImage[]) => {
@@ -211,6 +453,11 @@ const AdminPage: React.FC = () => {
 
       {/* Links Management */}
       <div style={{ marginBottom: "50px" }}>
+        <h2
+          style={{ marginBottom: "20px", fontSize: "20px", fontWeight: "bold" }}
+        >
+          Links
+        </h2>
         <div style={{ marginBottom: "20px" }}>
           <div
             className="link-row"
@@ -220,6 +467,7 @@ const AdminPage: React.FC = () => {
               gap: "10px",
               width: "100%",
               flexWrap: "wrap",
+              alignItems: "flex-start",
             }}
           >
             <input
@@ -229,8 +477,8 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setNewLinkText(e.target.value)}
               className="link-input"
               style={{
-                flex: "1",
-                minWidth: "200px",
+                flex: "1 1 200px",
+                minWidth: "150px",
                 padding: "8px",
                 border: "1px solid #ccc",
               }}
@@ -242,8 +490,8 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setNewLinkUrl(e.target.value)}
               className="link-input"
               style={{
-                flex: "1",
-                minWidth: "200px",
+                flex: "1 1 200px",
+                minWidth: "150px",
                 padding: "8px",
                 border: "1px solid #ccc",
               }}
@@ -255,171 +503,72 @@ const AdminPage: React.FC = () => {
                 padding: "8px 15px",
                 border: "1px solid #ccc",
                 flexShrink: "0",
+                whiteSpace: "nowrap",
               }}
             >
-              Add
+              Add Link
             </button>
           </div>
         </div>
-        <div>
-          {links.map((link) => (
-            <div key={link.id} style={{ marginBottom: "15px" }}>
-              {editingLinkId === link.id ? (
-                <div
-                  className="link-row"
+        {linksLoading ? (
+          <div style={{ textAlign: "center", padding: "20px" }}>
+            Loading links...
+          </div>
+        ) : (
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleLinkDragEnd}
+          >
+            <SortableContext
+              items={links.map((link) => link.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div>
+                <h3
                   style={{
-                    display: "flex",
-                    gap: "10px",
-                    width: "100%",
-                    flexWrap: "wrap",
+                    marginBottom: "10px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
                   }}
                 >
-                  <input
-                    type="text"
-                    value={link.text}
-                    onChange={(e) =>
-                      handleLinkTextChange(link.id, e.target.value)
-                    }
-                    className="link-input"
-                    style={{
-                      flex: "1",
-                      minWidth: "200px",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
+                  Regular Links
+                </h3>
+                {regularLinks.map((link) => (
+                  <SortableLink
+                    key={link.id}
+                    link={link}
+                    onSave={handleSaveLink}
+                    onDelete={handleDeleteLink}
+                    onTextChange={handleLinkTextChange}
+                    onUrlChange={handleLinkUrlChange}
                   />
-                  <input
-                    type="url"
-                    value={link.url}
-                    onChange={(e) =>
-                      handleLinkUrlChange(link.id, e.target.value)
-                    }
-                    className="link-input"
-                    style={{
-                      flex: "1",
-                      minWidth: "200px",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                    }}
-                  />
-                  <div
-                    className="link-buttons"
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      flex: "1",
-                      minWidth: "200px",
-                    }}
-                  >
-                    <button
-                      onClick={handleSaveLink}
-                      className="link-button"
-                      style={{
-                        flex: "1",
-                        padding: "8px 15px",
-                        border: "1px solid #ccc",
-                      }}
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="link-button"
-                      style={{
-                        flex: "1",
-                        padding: "8px 15px",
-                        border: "1px solid #ccc",
-                      }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={() => handleDeleteLink(link.id)}
-                      className="link-button"
-                      style={{
-                        flex: "1",
-                        color: "red",
-                        padding: "8px 15px",
-                        border: "1px solid #ccc",
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div
-                  className="link-row"
+                ))}
+
+                <h3
                   style={{
-                    display: "flex",
-                    gap: "10px",
-                    width: "100%",
-                    flexWrap: "wrap",
+                    marginTop: "20px",
+                    marginBottom: "10px",
+                    fontSize: "16px",
+                    fontWeight: "bold",
                   }}
                 >
-                  <span
-                    className="link-input"
-                    style={{
-                      flex: "1",
-                      minWidth: "200px",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      backgroundColor: "#f9f9f9",
-                    }}
-                  >
-                    {link.text}
-                  </span>
-                  <span
-                    className="link-input"
-                    style={{
-                      flex: "1",
-                      minWidth: "200px",
-                      padding: "8px",
-                      border: "1px solid #ccc",
-                      backgroundColor: "#f9f9f9",
-                    }}
-                  >
-                    {link.url}
-                  </span>
-                  <div
-                    className="link-buttons"
-                    style={{
-                      display: "flex",
-                      gap: "10px",
-                      flex: "1",
-                      minWidth: "200px",
-                    }}
-                  >
-                    <button
-                      onClick={() => handleEditLink(link.id)}
-                      disabled={editingLinkId !== null}
-                      className="link-button"
-                      style={{
-                        flex: "1",
-                        padding: "8px 15px",
-                        border: "1px solid #ccc",
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDeleteLink(link.id)}
-                      className="link-button"
-                      style={{
-                        flex: "1",
-                        color: "red",
-                        padding: "8px 15px",
-                        border: "1px solid #ccc",
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+                  Social Media
+                </h3>
+                {socialLinks.map((link) => (
+                  <SortableLink
+                    key={link.id}
+                    link={link}
+                    onSave={handleSaveLink}
+                    onDelete={handleDeleteLink}
+                    onTextChange={handleLinkTextChange}
+                    onUrlChange={handleLinkUrlChange}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+        )}
       </div>
 
       {/* Separator */}

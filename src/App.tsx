@@ -1,184 +1,196 @@
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useGalleryContext } from "@/contexts/GalleryContext";
+import { linkApi } from "@/services/api";
 import GalleryGrid from "@/components/GalleryGrid";
 import Lightbox from "@/components/Lightbox";
 import AdminPage from "@/pages/AdminPage";
 
-const HomePage = ({ galleryData, error, openLightbox, lightboxProps }) => (
-  <div className="min-h-screen" style={{ position: "relative" }}>
-    <div className="max-w-[1000px] mx-auto mb-20">
-      <main className="px-[5%] py-8 pb-16">
-        <div className="pt-[20vh]">
-          <div className="header-container flex items-center justify-between my-4">
-            <img
-              src="/favicon.png"
-              alt="Logo"
-              className="logo"
-              style={{ cursor: "pointer" }}
-            />
+interface HomePageProps {
+  galleryData: any;
+  error: string | null;
+  openLightbox: (image: any, index: number) => void;
+  lightboxProps: any;
+}
+
+const HomePage = ({
+  galleryData,
+  error,
+  openLightbox,
+  lightboxProps,
+}: HomePageProps) => {
+  // Create combined array for index calculation
+  const allImages = [...galleryData.finished, ...galleryData.wip];
+  const [links, setLinks] = useState<any[]>([]);
+
+  // Load links from API
+  useEffect(() => {
+    const loadLinks = async () => {
+      try {
+        const linksData = await linkApi.getLinks();
+        setLinks(linksData);
+      } catch (error) {
+        console.error("Error loading links:", error);
+      }
+    };
+    loadLinks();
+  }, []);
+
+  // Separate links into two categories
+  const regularLinks = links.filter(
+    (link) =>
+      !link.text.includes("SoundCloud") &&
+      !link.text.includes("Bandcamp") &&
+      !link.text.includes("Instagram") &&
+      !link.text.includes("TikTok") &&
+      !link.text.includes("YouTube") &&
+      !link.text.includes("Twitch")
+  );
+
+  const socialLinks = links.filter(
+    (link) =>
+      link.text.includes("SoundCloud") ||
+      link.text.includes("Bandcamp") ||
+      link.text.includes("Instagram") ||
+      link.text.includes("TikTok") ||
+      link.text.includes("YouTube") ||
+      link.text.includes("Twitch")
+  );
+
+  return (
+    <div className="min-h-screen" style={{ position: "relative" }}>
+      <div className="max-w-[1000px] mx-auto mb-20">
+        <main className="px-[5%] py-8 pb-16">
+          <div className="pt-[20vh] mobile-pt">
+            <div className="header-container flex items-center justify-between my-4">
+              <img
+                src="/favicon.png"
+                alt="Logo"
+                className="logo"
+                style={{ cursor: "pointer" }}
+              />
+            </div>
+
+            <nav className="links">
+              {regularLinks.map((link, index) => (
+                <React.Fragment key={link.id}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {link.text}
+                  </a>
+                  {(index < regularLinks.length - 1 ||
+                    socialLinks.length > 0) && <br />}
+                </React.Fragment>
+              ))}
+              {socialLinks.length > 0 && regularLinks.length > 0 && <br />}
+              {socialLinks.map((link, index) => (
+                <React.Fragment key={link.id}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {link.text}
+                  </a>
+                  {index < socialLinks.length - 1 && <br />}
+                </React.Fragment>
+              ))}
+            </nav>
           </div>
+        </main>
 
-          <nav className="links">
-            <a
-              href="https://soundcloud.com/merlin040/oa-260725"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              @ OA 26-07-2025 - liveset
-            </a>
-            <br />
-            <a
-              href="https://soundcloud.com/merlin040/live-aus-der-werkstatt-1"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              "Live aus der Werkstatt 1" - Mix
-            </a>
-            <br />
-            <a
-              href="https://soundcloud.com/merlin040/keys-dont-match-remix"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              "Keys Don't Match" - Stimming, Dominique Fricot - Merlin Remix
-            </a>
-            <br />
-            <a
-              href="https://soundcloud.com/merlin040/set-20042025"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              @ Studio Boschstraße 20.04.2025 - Mix
-            </a>
-            <br />
-            <a
-              href="https://soundcloud.com/merlin040/sets/wanja"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              "Der starke Wanja" EP
-            </a>
-            <br />
-            <br />
-            <a
-              href="https://soundcloud.com/merlin040"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              SoundCloud 🎶
-            </a>
-            <br />
-            <a
-              href="https://sunsetrecords-040.bandcamp.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Bandcamp (Sunset Records) 🌞
-            </a>
-            <br />
-            <a
-              href="https://instagram.com/merlinkraemer"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Instagram 🎨
-            </a>
-            <br />
-            <a
-              href="https://www.tiktok.com/@merlinsroom"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              TikTok
-            </a>
-            <br />
-            <a
-              href="https://www.youtube.com/@merlins-room"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              YouTube
-            </a>
-            <br />
-            <a
-              href="https://www.twitch.tv/merlinsroom"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Twitch
-            </a>
-          </nav>
-        </div>
-      </main>
-
-      <br />
-
-      <section className="gallery my-12 px-[5%]">
-        <i>finished 2025:</i>
-        <div className="mt-6">
-          {error ? (
-            <div className="text-center py-8 text-red-500">{error}</div>
-          ) : galleryData.finished.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No finished artworks yet
-            </div>
-          ) : (
-            <GalleryGrid
-              images={galleryData.finished}
-              onImageClick={openLightbox}
-            />
-          )}
-        </div>
-      </section>
-
-      <section
-        className="gallery my-12 px-[5%]"
-        style={{ marginBottom: "6rem" }}
-      >
-        <i>wip 2025:</i>
-        <div className="mt-6">
-          {error ? (
-            <div className="text-center py-8 text-red-500">{error}</div>
-          ) : galleryData.wip.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No works in progress yet
-            </div>
-          ) : (
-            <GalleryGrid images={galleryData.wip} onImageClick={openLightbox} />
-          )}
-        </div>
-      </section>
-
-      <footer className="px-[5%] py-8 pb-20" style={{ marginBottom: "5rem" }}>
-        Willst du eins haben? Schreib mir eine DM oder email an{" "}
-        <a href="mailto:merlinkraemer@gmail.com">merlinkraemer@gmail.com</a>
         <br />
-        <br />
-        <small>© 2025 Merlin Krämer</small>
-        <br />
-        <br />
-        <a
-          href="https://buymeacoffee.com/merlinkrae4"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        <section className="gallery my-12 px-[5%]">
+          <i>finished 2025:</i>
+          <div className="mt-6">
+            {error ? (
+              <div className="text-center py-8 text-red-500">{error}</div>
+            ) : galleryData.finished.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No finished artworks yet
+              </div>
+            ) : (
+              <GalleryGrid
+                images={galleryData.finished}
+                onImageClick={(imageId) => {
+                  const image = allImages.find(
+                    (img: any) => img.id === imageId
+                  );
+                  const index = allImages.findIndex(
+                    (img: any) => img.id === imageId
+                  );
+                  if (image) openLightbox(image, index);
+                }}
+              />
+            )}
+          </div>
+        </section>
+
+        <section
+          className="gallery my-12 px-[5%]"
+          style={{ marginBottom: "6rem" }}
         >
-          Buy me a coffee ☕
-        </a>
-      </footer>
-    </div>
+          <i>wip 2025:</i>
+          <div className="mt-6">
+            {error ? (
+              <div className="text-center py-8 text-red-500">{error}</div>
+            ) : galleryData.wip.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                No works in progress yet
+              </div>
+            ) : (
+              <GalleryGrid
+                images={galleryData.wip}
+                onImageClick={(imageId) => {
+                  const image = allImages.find(
+                    (img: any) => img.id === imageId
+                  );
+                  const index = allImages.findIndex(
+                    (img: any) => img.id === imageId
+                  );
+                  if (image) openLightbox(image, index);
+                }}
+              />
+            )}
+          </div>
+        </section>
 
-    {/* Swiper Lightbox */}
-    <Lightbox {...lightboxProps} />
-  </div>
-);
+        <footer className="px-[5%] py-8 pb-20" style={{ marginBottom: "5rem" }}>
+          Willst du eins haben? Schreib mir eine DM oder email an{" "}
+          <a href="mailto:merlinkraemer@gmail.com">merlinkraemer@gmail.com</a>
+          <br />
+          <br />
+          <small>© 2025 Merlin Krämer</small>
+          <br />
+          <br />
+          <a
+            href="https://buymeacoffee.com/merlinkrae4"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Buy me a coffee ☕
+          </a>
+        </footer>
+      </div>
+
+      {/* Swiper Lightbox */}
+      <Lightbox {...lightboxProps} />
+    </div>
+  );
+};
 
 function App() {
   const { galleryData, loading, error } = useGalleryContext();
   const [lightboxImageId, setLightboxImageId] = useState<string | null>(null);
 
-  const openLightbox = (imageId: string) => {
-    setLightboxImageId(imageId);
+  const openLightbox = (image: any, _index: number) => {
+    setLightboxImageId(image.id);
   };
 
   const closeLightbox = () => {

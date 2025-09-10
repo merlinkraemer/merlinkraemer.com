@@ -58,6 +58,36 @@ export const galleryApi = {
   },
 };
 
+export const linkApi = {
+  // Get all links
+  getLinks: async (): Promise<any[]> => {
+    const response = await api.get("/links");
+    return response.data;
+  },
+
+  // Create new link
+  createLink: async (text: string, url: string): Promise<any> => {
+    const response = await api.post("/links", { text, url });
+    return response.data;
+  },
+
+  // Update link
+  updateLink: async (id: number, text: string, url: string): Promise<any> => {
+    const response = await api.put(`/links/${id}`, { text, url });
+    return response.data;
+  },
+
+  // Delete link
+  deleteLink: async (id: number): Promise<void> => {
+    await api.delete(`/links/${id}`);
+  },
+
+  // Reorder links
+  reorderLinks: async (links: any[]): Promise<void> => {
+    await api.put("/links/reorder", { links });
+  },
+};
+
 export const authApi = {
   // Login
   login: async (password: string): Promise<boolean> => {

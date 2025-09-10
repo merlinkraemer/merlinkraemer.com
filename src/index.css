@@ -141,16 +141,89 @@ img.loading {
   }
 }
 
-/* Responsive */
+/* Responsive Gallery Grid */
+@media (min-width: 480px) {
+  .gallery-grid {
+    column-count: 2;
+    column-gap: 12px;
+  }
+}
+
 @media (min-width: 768px) {
   .gallery-grid {
     column-count: 2;
+    column-gap: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   .gallery-grid {
     column-count: 3;
+    column-gap: 20px;
+  }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 479px) {
+  .gallery-grid {
+    column-count: 1;
+    column-gap: 8px;
+  }
+
+  .gallery-item {
+    margin-bottom: 12px;
+  }
+
+  .gallery-item img {
+    border-radius: 4px;
+  }
+}
+
+/* Mobile layout improvements */
+@media (max-width: 768px) {
+  .mobile-pt {
+    padding-top: 10vh !important;
+  }
+
+  main {
+    padding-left: 4% !important;
+    padding-right: 4% !important;
+  }
+
+  .gallery {
+    padding-left: 4% !important;
+    padding-right: 4% !important;
+  }
+
+  footer {
+    padding-left: 4% !important;
+    padding-right: 4% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-pt {
+    padding-top: 5vh !important;
+  }
+
+  main {
+    padding-left: 3% !important;
+    padding-right: 3% !important;
+  }
+
+  .gallery {
+    padding-left: 3% !important;
+    padding-right: 3% !important;
+  }
+
+  footer {
+    padding-left: 3% !important;
+    padding-right: 3% !important;
+  }
+
+  .links a {
+    font-size: 16px;
+    line-height: 1.4;
   }
 }
 
@@ -325,10 +398,88 @@ img.loading {
   justify-content: center;
 }
 
+/* Lightbox mobile fixes */
+.lightbox-container {
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.lightbox-container .swiper {
+  height: 100% !important;
+  width: 100% !important;
+  overflow: hidden !important;
+}
+
+.lightbox-container .swiper-wrapper {
+  height: 100% !important;
+  width: 100% !important;
+}
+
+.lightbox-container .swiper-slide {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.lightbox-container .swiper-zoom-container {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.lightbox-container .swiper-zoom-container>div {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.lightbox-container img {
+  max-height: 100% !important;
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+/* Prevent body scroll when lightbox is open */
+body.lightbox-open {
+  overflow: hidden !important;
+  position: fixed !important;
+  width: 100% !important;
+}
+
 @media (max-width: 600px) {
   .lightbox-content {
     align-items: center;
     justify-content: center;
+    padding: 5px;
+  }
+
+  .lightbox-container {
+    padding: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .lightbox-container .swiper-slide {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .lightbox-container img {
+    max-height: calc(100vh - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
   }
 }
 
@@ -353,4 +504,440 @@ img.loading {
   font-size: 14px;
   font-family: "Courier New", monospace;
   z-index: 20;
+}
+
+/* Admin Layout Styles */
+.admin-layout {
+  font-family: inherit;
+  margin: 20px auto;
+  line-height: 1.6;
+  max-width: 1000px;
+  padding: 0 20px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #ccc;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.admin-header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-logo {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.admin-title {
+  margin: 0;
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-header-right {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-link {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  text-decoration: none;
+  color: inherit;
+  white-space: nowrap;
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+}
+
+.admin-logout-btn {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  color: red;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.admin-content {
+  width: 100%;
+}
+
+/* Mobile Admin Layout */
+@media (max-width: 768px) {
+  .admin-layout {
+    margin: 10px auto;
+    padding: 0 15px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+  }
+
+  .admin-header-left {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .admin-title {
+    font-size: 20px;
+  }
+
+  .admin-header-right {
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .admin-link,
+  .admin-logout-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    flex: 1;
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-layout {
+    padding: 0 10px;
+  }
+
+  .admin-title {
+    font-size: 18px;
+  }
+
+  .admin-header-right {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .admin-link,
+  .admin-logout-btn {
+    max-width: none;
+    width: 100%;
+  }
+}
+
+/* Admin Form Mobile Styles */
+@media (max-width: 768px) {
+
+  .admin-content input,
+  .admin-content textarea,
+  .admin-content select {
+    width: 100% !important;
+    max-width: none !important;
+    margin-bottom: 10px !important;
+    font-size: 16px !important;
+    /* Prevent zoom on iOS */
+  }
+
+  .admin-content .form-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .admin-content .form-actions {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .admin-content .form-actions button {
+    width: 100% !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    height: 44px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    background: #f5f5f5 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+  }
+
+  .admin-content .form-actions button:hover {
+    background: #e5e5e5 !important;
+  }
+
+  .admin-content .form-actions button.primary {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+  }
+
+  .admin-content .form-actions button.primary:hover {
+    background: #0056b3 !important;
+  }
+
+  .admin-content .form-actions button.danger {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+  }
+
+  .admin-content .form-actions button.danger:hover {
+    background: #c82333 !important;
+  }
+
+  .admin-content .image-preview {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  .admin-content .image-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+
+  .admin-content .image-item img {
+    width: 100% !important;
+    max-width: 300px !important;
+    height: auto !important;
+    margin: 0 auto 15px auto !important;
+  }
+
+  .admin-content .image-details {
+    width: 100% !important;
+  }
+
+  /* Link management mobile styles */
+  .link-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .link-input {
+    width: 100% !important;
+    min-width: unset !important;
+    padding: 8px 12px !important;
+    font-size: 16px !important;
+    height: 44px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    box-sizing: border-box !important;
+  }
+
+  .link-buttons {
+    display: flex !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .link-button {
+    flex: 1 !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    height: 44px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    background: #f5f5f5 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+  }
+
+  .link-button:hover {
+    background: #e5e5e5 !important;
+  }
+
+  .link-button.primary {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+  }
+
+  .link-button.primary:hover {
+    background: #0056b3 !important;
+  }
+
+  .link-button.danger {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+  }
+
+  .link-button.danger:hover {
+    background: #c82333 !important;
+  }
+
+  /* Image management mobile styles */
+  .image-item {
+    flex-direction: column !important;
+    padding: 15px !important;
+  }
+
+  .image-preview {
+    width: 100% !important;
+    height: 200px !important;
+    margin-bottom: 15px !important;
+    object-fit: cover !important;
+  }
+
+  .image-info {
+    width: 100% !important;
+    margin-bottom: 15px !important;
+  }
+
+  .image-actions {
+    display: flex !important;
+    gap: 10px !important;
+    width: 100% !important;
+    flex-wrap: wrap !important;
+  }
+
+  .image-action-button {
+    flex: 1 !important;
+    min-width: 120px !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    height: 44px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    background: #f5f5f5 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+  }
+
+  .image-action-button:hover {
+    background: #e5e5e5 !important;
+  }
+
+  .image-action-button.primary {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+  }
+
+  .image-action-button.primary:hover {
+    background: #0056b3 !important;
+  }
+
+  .image-action-button.danger {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+  }
+
+  .image-action-button.danger:hover {
+    background: #c82333 !important;
+  }
+
+  /* Edit form mobile styles */
+  .edit-form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+  }
+
+  .edit-form input,
+  .edit-form textarea,
+  .edit-form select {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+  }
+
+  .edit-form textarea {
+    min-height: 100px !important;
+    resize: vertical !important;
+  }
+
+  .edit-form .form-row {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .edit-form .form-actions {
+    display: flex !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .edit-form .form-actions button {
+    flex: 1 !important;
+    padding: 10px 16px !important;
+    font-size: 14px !important;
+    height: 44px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    background: #f5f5f5 !important;
+    cursor: pointer !important;
+    box-sizing: border-box !important;
+  }
+
+  .edit-form .form-actions button:hover {
+    background: #e5e5e5 !important;
+  }
+
+  .edit-form .form-actions button.primary {
+    background: #007bff !important;
+    color: white !important;
+    border-color: #007bff !important;
+  }
+
+  .edit-form .form-actions button.primary:hover {
+    background: #0056b3 !important;
+  }
+
+  .edit-form .form-actions button.danger {
+    background: #dc3545 !important;
+    color: white !important;
+    border-color: #dc3545 !important;
+  }
+
+  .edit-form .form-actions button.danger:hover {
+    background: #c82333 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content .image-item {
+    padding: 10px !important;
+  }
+
+  .admin-content .image-item img {
+    max-width: 250px !important;
+  }
+
+  .admin-content textarea {
+    min-height: 80px !important;
+  }
+
+  .link-buttons {
+    flex-direction: column !important;
+  }
+
+  .image-actions {
+    flex-direction: column !important;
+  }
+
+  .image-action-button {
+    min-width: unset !important;
+  }
+
+  .edit-form .form-actions {
+    flex-direction: column !important;
+  }
 }

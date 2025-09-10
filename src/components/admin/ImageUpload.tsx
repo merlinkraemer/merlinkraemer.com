@@ -12,7 +12,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
     description: "",
     category: "finished" as "finished" | "wip",
     year: new Date().getFullYear(),
-    width: 1,
   });
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,7 +84,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
       uploadData.append("description", formData.description);
       uploadData.append("category", formData.category);
       uploadData.append("year", formData.year.toString());
-      uploadData.append("width", formData.width.toString());
 
       await galleryApi.addImage(uploadData);
 
@@ -96,7 +94,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
         description: "",
         category: "finished",
         year: new Date().getFullYear(),
-        width: 1,
       });
 
       // Clear file input
@@ -126,7 +123,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
         style={{
           display: "flex",
           gap: "20px",
-          alignItems: "flex-start",
+          alignItems: "stretch",
           flexWrap: "wrap",
         }}
       >
@@ -136,6 +133,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
             flex: "0 0 300px",
             minWidth: "280px",
             width: "100%",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <div
@@ -150,7 +149,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
               textAlign: "center",
               backgroundColor: dragActive ? "#f0f8ff" : "#f9f9f9",
               cursor: "pointer",
-              minHeight: "200px",
+              flex: "1",
               display: "flex",
               flexDirection: "column",
               justifyContent: "center",
@@ -209,10 +208,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
           style={{
             flex: "1",
             minWidth: "280px",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <form onSubmit={handleSubmit}>
-            <div>
+          <form
+            onSubmit={handleSubmit}
+            style={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
+            <div style={{ flex: "1" }}>
               <label
                 htmlFor="alt"
                 style={{
@@ -235,6 +239,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
                   padding: "8px",
                   marginBottom: "15px",
                   border: "1px solid #ccc",
+                  boxSizing: "border-box",
                 }}
                 placeholder="e.g., Cozy Bed"
                 required
@@ -299,6 +304,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
                     height: "40px",
                     padding: "8px",
                     border: "1px solid #ccc",
+                    boxSizing: "border-box",
                   }}
                 >
                   <option value="finished">Finished</option>
@@ -328,46 +334,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
                     height: "40px",
                     padding: "8px",
                     border: "1px solid #ccc",
+                    boxSizing: "border-box",
                   }}
                   min="2020"
                   max="2030"
                 />
               </div>
-
-              <div style={{ flex: "1", minWidth: "120px" }}>
-                <label
-                  htmlFor="width"
-                  style={{
-                    display: "block",
-                    fontWeight: "bold",
-                    marginBottom: "5px",
-                  }}
-                >
-                  Width
-                </label>
-                <select
-                  id="width"
-                  name="width"
-                  value={formData.width}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                  }}
-                >
-                  <option value={1}>1 Column</option>
-                  <option value={2}>2 Columns</option>
-                  <option value={3}>3 Columns</option>
-                  <option value={4}>4 Columns</option>
-                  <option value={5}>5 Columns</option>
-                  <option value={6}>6 Columns</option>
-                  <option value={7}>7 Columns</option>
-                </select>
-              </div>
             </div>
-
             <button
               type="submit"
               disabled={uploading}
@@ -376,6 +349,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
                 height: "40px",
                 padding: "10px",
                 border: "1px solid #ccc",
+                marginTop: "auto",
               }}
             >
               {uploading ? "Uploading..." : "Upload"}

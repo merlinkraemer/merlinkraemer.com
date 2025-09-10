@@ -1,0 +1,191 @@
+{
+  "galleryImages": [
+    {
+      "id": "cmfd5cthl0000eo03zzac0gq1",
+      "src": "https://media.merlinkraemer.com/Cozy-Bed.webp",
+      "alt": "Cozy-Bed",
+      "description": "Cozy-Bed",
+      "category": "finished",
+      "year": 2024,
+      "order": 1,
+      "width": 2,
+      "createdAt": 1757458401609,
+      "updatedAt": 1757460009801
+    },
+    {
+      "id": "cmfd5cthq0001eo03ir2u6bkt",
+      "src": "https://media.merlinkraemer.com/IMG_0409.webp",
+      "alt": "IMG_0409",
+      "description": "IMG_0409",
+      "category": "wip",
+      "year": 2025,
+      "order": 0,
+      "width": 1,
+      "createdAt": 1757458401615,
+      "updatedAt": 1757458401615
+    },
+    {
+      "id": "cmfd5cthv0008eo03ixxlgrmq",
+      "src": "https://media.merlinkraemer.com/Katze-in-Pflanze.webp",
+      "alt": "Katze-in-Pflanze",
+      "description": "Katze-in-Pflanze",
+      "category": "finished",
+      "year": 2024,
+      "order": 1,
+      "width": 2,
+      "createdAt": 1757458401620,
+      "updatedAt": 1757461246946
+    },
+    {
+      "id": "cmfd5cthw0009eo03ydi3h76d",
+      "src": "https://media.merlinkraemer.com/Sonnenritter.webp",
+      "alt": "Sonnenritter",
+      "description": "Sonnenritter",
+      "category": "finished",
+      "year": 2024,
+      "order": 2,
+      "width": 4,
+      "createdAt": 1757458401620,
+      "updatedAt": 1757461246948
+    },
+    {
+      "id": "cmfd5cthw000aeo03dm6iagbe",
+      "src": "https://media.merlinkraemer.com/Studio-Gatos.webp",
+      "alt": "Studio-Gatos",
+      "description": "Studio-Gatos",
+      "category": "finished",
+      "year": 2024,
+      "order": 6,
+      "width": 2,
+      "createdAt": 1757458401621,
+      "updatedAt": 1757461246948
+    },
+    {
+      "id": "cmfd5cthx000beo033yr032zx",
+      "src": "https://media.merlinkraemer.com/Treibhaus.webp",
+      "alt": "Treibhaus",
+      "description": "Treibhaus",
+      "category": "finished",
+      "year": 2024,
+      "order": 3,
+      "width": 1,
+      "createdAt": 1757458401621,
+      "updatedAt": 1757461246952
+    },
+    {
+      "id": "cmfd5cthx000ceo03wwjo8frw",
+      "src": "https://media.merlinkraemer.com/pizzalady.webp",
+      "alt": "pizzalady",
+      "description": "pizzalady",
+      "category": "finished",
+      "year": 2024,
+      "order": 4,
+      "width": 2,
+      "createdAt": 1757458401622,
+      "updatedAt": 1757461246953
+    },
+    {
+      "id": "cmfd5cthy000deo03pa4lqhe2",
+      "src": "https://media.merlinkraemer.com/room1.webp",
+      "alt": "room1",
+      "description": "room1",
+      "category": "finished",
+      "year": 2024,
+      "order": 5,
+      "width": 1,
+      "createdAt": 1757458401622,
+      "updatedAt": 1757461246953
+    }
+  ],
+  "links": [
+    {
+      "id": 13,
+      "text": "@ OA 26-07-2025 - liveset",
+      "url": " https://soundcloud.com/merlin040/oa-260725",
+      "order": 1,
+      "createdAt": 1757459254961,
+      "updatedAt": 1757461220124
+    },
+    {
+      "id": 2,
+      "text": "\"Live aus der Werkstatt 1\" - Mix",
+      "url": "https://soundcloud.com/merlin040/live-aus-der-werkstatt-1",
+      "order": 2,
+      "createdAt": 1757458401623,
+      "updatedAt": 1757461220124
+    },
+    {
+      "id": 3,
+      "text": "\"Keys Don't Match\" - Stimming, Dominique Fricot - Merlin Remix",
+      "url": "https://soundcloud.com/merlin040/keys-dont-match-remix",
+      "order": 3,
+      "createdAt": 1757458401624,
+      "updatedAt": 1757461220124
+    },
+    {
+      "id": 4,
+      "text": "@ Studio Boschstraße 20.04.2025 - Mix",
+      "url": "https://soundcloud.com/merlin040/set-20042025",
+      "order": 4,
+      "createdAt": 1757458401625,
+      "updatedAt": 1757461220124
+    },
+    {
+      "id": 5,
+      "text": "\"Der starke Wanja\" EP",
+      "url": "https://soundcloud.com/merlin040/sets/wanja",
+      "order": 6,
+      "createdAt": 1757458401626,
+      "updatedAt": 1757461220131
+    },
+    {
+      "id": 6,
+      "text": "SoundCloud 🎶",
+      "url": "https://soundcloud.com/merlin040",
+      "order": 7,
+      "createdAt": 1757458401627,
+      "updatedAt": 1757461220126
+    },
+    {
+      "id": 7,
+      "text": "Bandcamp (Sunset Records) 🌞",
+      "url": "https://sunsetrecords-040.bandcamp.com/",
+      "order": 8,
+      "createdAt": 1757458401627,
+      "updatedAt": 1757461220126
+    },
+    {
+      "id": 8,
+      "text": "Instagram 🎨",
+      "url": "https://instagram.com/merlinkraemer",
+      "order": 9,
+      "createdAt": 1757458401628,
+      "updatedAt": 1757461220126
+    },
+    {
+      "id": 9,
+      "text": "TikTok",
+      "url": "https://www.tiktok.com/@merlinsroom",
+      "order": 10,
+      "createdAt": 1757458401630,
+      "updatedAt": 1757461220128
+    },
+    {
+      "id": 10,
+      "text": "YouTube",
+      "url": "https://www.youtube.com/@merlins-room",
+      "order": 11,
+      "createdAt": 1757458401631,
+      "updatedAt": 1757461220129
+    },
+    {
+      "id": 11,
+      "text": "Twitch",
+      "url": "https://www.twitch.tv/merlinsroom",
+      "order": 12,
+      "createdAt": 1757458401632,
+      "updatedAt": 1757461220130
+    }
+  ],
+  "exportedAt": "2025-09-10T00:09:25.142Z"
+}

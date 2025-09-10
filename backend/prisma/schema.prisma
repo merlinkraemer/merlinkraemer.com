@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model GalleryImage {
@@ -23,5 +23,16 @@ model GalleryImage {
   updatedAt   DateTime @updatedAt
 
   @@map("gallery_images")
+}
+
+model Link {
+  id        Int      @id @default(autoincrement())
+  text      String
+  url       String
+  order     Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("links")
 }
 

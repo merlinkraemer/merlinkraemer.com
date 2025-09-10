@@ -86,16 +86,10 @@ app.post(
         return res.status(400).json({ error: "No image file provided" });
       }
 
-      const { alt, description, category, year, width } = req.body;
+      const { alt, description, category, year } = req.body;
 
       if (!alt || !description || !category || !year) {
         return res.status(400).json({ error: "Missing required fields" });
-      }
-
-      // Validate width (1-7)
-      const widthValue = width ? parseInt(width) : 1;
-      if (widthValue < 1 || widthValue > 7) {
-        return res.status(400).json({ error: "Width must be between 1 and 7" });
       }
 
       // Generate unique filename
@@ -131,7 +125,7 @@ app.post(
           description,
           category,
           year: parseInt(year),
-          width: widthValue,
+          width: 1,
         },
       });
 
@@ -229,16 +223,10 @@ app.delete("/api/gallery/:id", authenticate, async (req, res) => {
 // Add existing image (for importing from R2)
 app.post("/api/gallery/existing", authenticate, async (req, res) => {
   try {
-    const { src, alt, description, category, year, width } = req.body;
+    const { src, alt, description, category, year } = req.body;
 
     if (!src || !alt || !description || !category || !year) {
       return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    // Validate width (1-7)
-    const widthValue = width ? parseInt(width) : 1;
-    if (widthValue < 1 || widthValue > 7) {
-      return res.status(400).json({ error: "Width must be between 1 and 7" });
     }
 
     // Create database record
@@ -249,7 +237,7 @@ app.post("/api/gallery/existing", authenticate, async (req, res) => {
         description,
         category,
         year: parseInt(year),
-        width: widthValue,
+        width: 1,
       },
     });
 
@@ -281,14 +269,14 @@ app.post("/api/fix-image-urls", authenticate, async (req, res) => {
 
     // Mapping of database alt names to actual R2 filenames
     const imageMapping = {
-      'Studio Gatos': 'Studio-Gatos.webp',
-      'Room 1': 'room1.webp',
-      'Katze in Pflanze': 'Katze-in-Pflanze.webp',
-      'Treibhaus': 'Treibhaus.webp',
-      'Cozy Bed': 'Cozy-Bed.webp',
-      'Sonnenritter': 'Sonnenritter.webp',
-      'Pizzalady': 'pizzalady.webp',
-      'WIP 2': 'IMG_0409.webp'
+      "Studio Gatos": "Studio-Gatos.webp",
+      "Room 1": "room1.webp",
+      "Katze in Pflanze": "Katze-in-Pflanze.webp",
+      Treibhaus: "Treibhaus.webp",
+      "Cozy Bed": "Cozy-Bed.webp",
+      Sonnenritter: "Sonnenritter.webp",
+      Pizzalady: "pizzalady.webp",
+      "WIP 2": "IMG_0409.webp",
     };
 
     const results = [];
@@ -296,12 +284,12 @@ app.post("/api/fix-image-urls", authenticate, async (req, res) => {
     for (const [altName, fileName] of Object.entries(imageMapping)) {
       // Find the image by alt name
       const image = await prisma.galleryImage.findFirst({
-        where: { alt: altName }
+        where: { alt: altName },
       });
 
       if (image) {
         const newUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
-        
+
         console.log(`Updating: ${altName}`);
         console.log(`  Old URL: ${image.src}`);
         console.log(`  New URL: ${newUrl}`);
@@ -309,32 +297,139 @@ app.post("/api/fix-image-urls", authenticate, async (req, res) => {
         // Update the image URL
         await prisma.galleryImage.update({
           where: { id: image.id },
-          data: { src: newUrl }
+          data: { src: newUrl },
         });
 
         results.push({
           alt: altName,
           oldUrl: image.src,
           newUrl: newUrl,
-          status: 'updated'
+          status: "updated",
         });
 
         console.log(`  ✅ Updated successfully`);
       } else {
         results.push({
           alt: altName,
-          status: 'not_found'
+          status: "not_found",
         });
         console.log(`❌ Image not found: ${altName}`);
       }
     }
 
-    console.log('🎉 All image URLs have been fixed!');
+    console.log("🎉 All image URLs have been fixed!");
     res.json({ success: true, results });
-
   } catch (error) {
-    console.error('❌ Error fixing image URLs:', error);
-    res.status(500).json({ error: 'Failed to fix image URLs' });
+    console.error("❌ Error fixing image URLs:", error);
+    res.status(500).json({ error: "Failed to fix image URLs" });
+  }
+});
+
+// Links management endpoints
+// Get all links
+app.get("/api/links", async (req, res) => {
+  try {
+    const links = await prisma.link.findMany({
+      orderBy: { order: "asc" },
+    });
+    res.json(links);
+  } catch (error: any) {
+    console.error("Error fetching links:", error);
+    res.status(500).json({ error: "Failed to fetch links" });
+  }
+});
+
+// Reorder links (must be before /:id routes)
+app.put("/api/links/reorder", authenticate, async (req, res) => {
+  try {
+    const { links } = req.body;
+
+    if (!Array.isArray(links)) {
+      return res.status(400).json({ error: "Links array is required" });
+    }
+
+    // Update order for each link
+    const updatePromises = links.map((link: any, index: number) =>
+      prisma.link.update({
+        where: { id: link.id },
+        data: { order: index + 1 },
+      })
+    );
+
+    await Promise.all(updatePromises);
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error reordering links:", error);
+    res.status(500).json({ error: "Failed to reorder links" });
+  }
+});
+
+// Create new link
+app.post("/api/links", authenticate, async (req, res) => {
+  try {
+    const { text, url } = req.body;
+
+    if (!text || !url) {
+      return res.status(400).json({ error: "Text and URL are required" });
+    }
+
+    // Get the highest order number
+    const lastLink = await prisma.link.findFirst({
+      orderBy: { order: "desc" },
+    });
+
+    const newOrder = lastLink ? lastLink.order + 1 : 1;
+
+    const link = await prisma.link.create({
+      data: {
+        text,
+        url,
+        order: newOrder,
+      },
+    });
+
+    res.json(link);
+  } catch (error: any) {
+    console.error("Error creating link:", error);
+    res.status(500).json({ error: "Failed to create link" });
+  }
+});
+
+// Update link
+app.put("/api/links/:id", authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { text, url } = req.body;
+
+    console.log("Update link request:", { id, text, url });
+    console.log("Parsed id:", parseInt(id));
+
+    const link = await prisma.link.update({
+      where: { id: parseInt(id) },
+      data: { text, url },
+    });
+
+    res.json(link);
+  } catch (error: any) {
+    console.error("Error updating link:", error);
+    res.status(500).json({ error: "Failed to update link" });
+  }
+});
+
+// Delete link
+app.delete("/api/links/:id", authenticate, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.link.delete({
+      where: { id: parseInt(id) },
+    });
+
+    res.json({ success: true });
+  } catch (error: any) {
+    console.error("Error deleting link:", error);
+    res.status(500).json({ error: "Failed to delete link" });
   }
 });
 

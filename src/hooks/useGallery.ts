@@ -69,9 +69,15 @@ export function useGallery(): UseGalleryReturn {
   // Fetch fresh data from API
   const fetchFromAPI = useCallback(async (): Promise<GalleryData> => {
     console.log("Gallery: Fetching from API");
-    const data = await galleryApi.getGallery();
-    saveToCache(data);
-    return data;
+    try {
+      const data = await galleryApi.getGallery();
+      console.log("Gallery: API response:", data);
+      saveToCache(data);
+      return data;
+    } catch (error) {
+      console.error("Gallery: API error:", error);
+      throw error;
+    }
   }, [saveToCache]);
 
   // Main fetch function with fallback
@@ -143,6 +149,10 @@ export function useGallery(): UseGalleryReturn {
         globalInitialized = true;
       } catch (err) {
         console.error("Error fetching gallery:", err);
+        console.error("Error details:", {
+          message: err instanceof Error ? err.message : "Unknown error",
+          stack: err instanceof Error ? err.stack : undefined,
+        });
 
         // Try to fallback to cache on API error
         const cachedData = loadFromCache();
@@ -153,6 +163,7 @@ export function useGallery(): UseGalleryReturn {
           initializedRef.current = true;
           globalInitialized = true;
         } else {
+          console.log("Gallery: No cached data available, setting error");
           setError("Failed to load gallery");
         }
       } finally {
@@ -219,30 +230,19 @@ export function useGallery(): UseGalleryReturn {
   );
 
   const addImage = useCallback(
-    async (image: GalleryImage) => {
-      const originalData = galleryData;
+    (image: GalleryImage) => {
       const optimisticData = {
         finished:
           image.category === "finished"
-            ? [...originalData.finished, image]
-            : originalData.finished,
+            ? [...galleryData.finished, image]
+            : galleryData.finished,
         wip:
           image.category === "wip"
-            ? [...originalData.wip, image]
-            : originalData.wip,
+            ? [...galleryData.wip, image]
+            : galleryData.wip,
       };
       setGalleryData(optimisticData);
       saveToCache(optimisticData);
-
-      try {
-        // This assumes the API call for addImage returns the final image object
-        // If not, a refresh might be needed.
-        await galleryApi.addImage(image);
-      } catch (err) {
-        setError("Failed to add image. Please try again.");
-        setGalleryData(originalData);
-        saveToCache(originalData);
-      }
     },
     [galleryData, saveToCache]
   );
