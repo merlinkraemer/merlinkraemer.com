@@ -262,11 +262,6 @@ export default function Lightbox({
                             }
                           )}
                         />
-                        {isPreloaded && (
-                          <div className="absolute top-2 right-2 bg-green-500 text-white text-xs px-2 py-1 opacity-75">
-                            ✓ Cached
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>

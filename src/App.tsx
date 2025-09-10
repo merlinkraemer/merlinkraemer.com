@@ -62,7 +62,7 @@ const HomePage = ({
       <div className="max-w-[1000px] mx-auto mb-20">
         <main className="px-[5%] py-8 pb-16">
           <div className="pt-[20vh] mobile-pt">
-            <div className="header-container flex items-center justify-between my-4">
+            <div className="header-container flex items-center justify-center my-4">
               <img
                 src="/favicon.png"
                 alt="Logo"
@@ -71,7 +71,7 @@ const HomePage = ({
               />
             </div>
 
-            <nav className="links">
+            <nav className="links mobile-links">
               {regularLinks.map((link, index) => (
                 <React.Fragment key={link.id}>
                   <a
