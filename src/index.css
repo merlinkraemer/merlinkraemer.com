@@ -182,61 +182,46 @@ img.loading {
 /* Mobile layout improvements */
 @media (max-width: 768px) {
   .mobile-pt {
-    padding-top: 25vh !important;
+    padding-top: 10vh !important;
   }
-  
+
   main {
     padding-left: 4% !important;
     padding-right: 4% !important;
   }
-  
+
   .gallery {
     padding-left: 4% !important;
     padding-right: 4% !important;
   }
-  
+
   footer {
     padding-left: 4% !important;
     padding-right: 4% !important;
-  }
-  
-  .links {
-    text-align: left !important;
-  }
-  
-  .links a {
-    display: block !important;
-    margin: 0 0 8px 0 !important;
   }
 }
 
 @media (max-width: 480px) {
   .mobile-pt {
-    padding-top: 20vh !important;
+    padding-top: 5vh !important;
   }
-  
+
   main {
     padding-left: 3% !important;
     padding-right: 3% !important;
   }
-  
+
   .gallery {
     padding-left: 3% !important;
     padding-right: 3% !important;
   }
-  
+
   footer {
     padding-left: 3% !important;
     padding-right: 3% !important;
   }
-  
-  .links {
-    text-align: left !important;
-  }
-  
+
   .links a {
-    display: block !important;
-    margin: 0 0 6px 0 !important;
     font-size: 16px;
     line-height: 1.4;
   }
