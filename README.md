@@ -1,10 +1,24 @@
 # merlin's internet
 
 https://merlinkraemer.com
-personal linksammlung
+personal gallery & links
 
-rebuild 09/25 w/
+## Tech Stack
 
-- **Frontend**: React + TS + Vite + Tailwind
-- **Backend**: Node.js + Express + Prisma + SQLite
-- **Hosted**: Vercel = Railway
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS
+- **Backend**: Node.js + Express + Prisma + SQLite/PostgreSQL
+- **Deployment**: Vercel (frontend) + Railway (backend)
+- **Storage**: Cloudflare R2
+
+## Development
+
+```bash
+# Start both frontend and backend
+npm run dev
+
+# Deploy to production
+./scripts/deploy.sh
+
+# Pull production data
+./scripts/pull.sh
+```

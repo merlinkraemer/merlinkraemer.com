@@ -5,6 +5,8 @@ node_modules/
 # Build outputs
 dist/
 build/
+backend/dist/
+backend/build/
 
 # Environment variables
 .env
@@ -85,6 +87,7 @@ dist
 # Temporary folders
 tmp/
 temp/
+temp-*.sql
 
 # Database
 *.db
