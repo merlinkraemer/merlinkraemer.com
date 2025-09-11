@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useGalleryContext } from "@/contexts/GalleryContext";
 import { linkApi } from "@/services/api";
@@ -60,8 +60,8 @@ const HomePage = ({
   return (
     <div className="min-h-screen" style={{ position: "relative" }}>
       <div className="max-w-[1000px] mx-auto mb-20">
-        <main className="px-[5%] py-8 pb-16">
-          <div className="pt-[20vh] mobile-pt">
+        <main className="py-8 pb-16">
+          <div className="mobile-pt">
             <div className="header-container flex items-center justify-between my-4">
               <img
                 src="/favicon.png"
@@ -71,34 +71,31 @@ const HomePage = ({
               />
             </div>
 
-            <nav className="links">
-              {regularLinks.map((link, index) => (
-                <React.Fragment key={link.id}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ cursor: "pointer" }}
-                  >
-                    {link.text}
-                  </a>
-                  {(index < regularLinks.length - 1 ||
-                    socialLinks.length > 0) && <br />}
-                </React.Fragment>
+            <nav className="links flex flex-col gap-y-1">
+              {regularLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ cursor: "pointer" }}
+                >
+                  {link.text}
+                </a>
               ))}
-              {socialLinks.length > 0 && regularLinks.length > 0 && <br />}
-              {socialLinks.map((link, index) => (
-                <React.Fragment key={link.id}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ cursor: "pointer" }}
-                  >
-                    {link.text}
-                  </a>
-                  {index < socialLinks.length - 1 && <br />}
-                </React.Fragment>
+              {socialLinks.length > 0 && regularLinks.length > 0 && (
+                <div className="py-2" />
+              )}
+              {socialLinks.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ cursor: "pointer" }}
+                >
+                  {link.text}
+                </a>
               ))}
             </nav>
           </div>
@@ -106,7 +103,7 @@ const HomePage = ({
 
         <br />
 
-        <section className="gallery my-12 px-[5%]">
+        <section className="gallery my-12">
           <i>finished 2025:</i>
           <div className="mt-6">
             {error ? (
@@ -133,7 +130,7 @@ const HomePage = ({
         </section>
 
         <section
-          className="gallery my-12 px-[5%]"
+          className="gallery my-12"
           style={{ marginBottom: "6rem" }}
         >
           <i>wip 2025:</i>
@@ -161,7 +158,7 @@ const HomePage = ({
           </div>
         </section>
 
-        <footer className="px-[5%] py-8 pb-20" style={{ marginBottom: "5rem" }}>
+        <footer className="py-8 pb-20" style={{ marginBottom: "5rem" }}>
           Willst du eins haben? Schreib mir eine DM oder email an{" "}
           <a href="mailto:merlinkraemer@gmail.com">merlinkraemer@gmail.com</a>
           <br />
