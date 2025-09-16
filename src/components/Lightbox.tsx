@@ -139,7 +139,7 @@ export default function Lightbox({
     [imageErrors]
   );
 
-  // Handle keyboard events
+  // Handle keyboard events and scroll position
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
@@ -149,6 +149,10 @@ export default function Lightbox({
     };
 
     if (isOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY;
+      document.body.style.top = `-${scrollY}px`;
+
       document.addEventListener("keydown", handleKeyDown);
       document.body.style.overflow = "hidden";
       document.body.classList.add("lightbox-open");
@@ -157,8 +161,12 @@ export default function Lightbox({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       if (isOpen) {
+        // Restore scroll position
+        const scrollY = document.body.style.top;
+        document.body.style.top = "";
         document.body.style.overflow = "unset";
         document.body.classList.remove("lightbox-open");
+        window.scrollTo(0, parseInt(scrollY || "0") * -1);
       }
     };
   }, [isOpen, onClose]);
