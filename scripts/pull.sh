@@ -82,8 +82,9 @@ fi
 
 print_status "Database URL obtained successfully"
 
-# Export data from Railway PostgreSQL
-pg_dump "$RAILWAY_DB_URL" > ../temp-postgres-dump.sql
+# Export data from Railway PostgreSQL using Railway CLI
+print_status "Exporting data using Railway CLI..."
+railway run pg_dump "$RAILWAY_DB_URL" > ../temp-postgres-dump.sql
 print_success "Production data exported"
 
 # Step 3: Convert PostgreSQL dump to SQLite format
