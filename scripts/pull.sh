@@ -68,12 +68,12 @@ fi
 
 # Get Railway database URL
 print_status "Getting Railway database URL..."
-RAILWAY_DB_URL=$(railway run --service backend printenv DATABASE_URL)
+RAILWAY_DB_URL=$(railway run printenv DATABASE_URL)
 
 if [ -z "$RAILWAY_DB_URL" ]; then
     print_error "Could not get Railway database URL"
     print_status "Trying alternative method..."
-    RAILWAY_DB_URL=$(railway variables --service backend | grep DATABASE_URL | cut -d'=' -f2- | tr -d ' ')
+    RAILWAY_DB_URL=$(railway variables | grep DATABASE_URL | cut -d'=' -f2- | tr -d ' ')
     if [ -z "$RAILWAY_DB_URL" ]; then
         print_error "Still could not get Railway database URL"
         exit 1
