@@ -129,10 +129,7 @@ const HomePage = ({
           </div>
         </section>
 
-        <section
-          className="gallery my-12"
-          style={{ marginBottom: "6rem" }}
-        >
+        <section className="gallery my-12" style={{ marginBottom: "6rem" }}>
           <i>wip 2025:</i>
           <div className="mt-6">
             {error ? (
@@ -254,7 +251,7 @@ function App() {
   // Show loading screen only for initial gallery data loading
   if (loading) {
     return (
-3      <div className="min-h-screen flex items-center justify-center bg-gray-50 loading-screen">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 loading-screen">
         <div className="text-center">
           <div className="logo wiggle mb-6">
             <img
