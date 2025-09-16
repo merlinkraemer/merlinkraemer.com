@@ -42,8 +42,6 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
     alt: "",
     description: "",
     category: "finished" as "finished" | "wip",
-    year: 0,
-    width: 1,
   });
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -68,8 +66,6 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
       alt: image.alt,
       description: image.description,
       category: image.category,
-      year: image.year,
-      width: image.width,
     });
   };
 
@@ -79,8 +75,6 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
       alt: "",
       description: "",
       category: "finished",
-      year: 0,
-      width: 1,
     });
   };
 
@@ -117,97 +111,49 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={{
-        ...style,
-        border: "1px solid #ccc",
-        margin: "15px 0",
-        padding: "20px",
-        display: "flex",
-        alignItems: "center",
-        gap: "20px",
-      }}
-    >
+    <div ref={setNodeRef} className="image-item" style={style}>
       <div
         {...attributes}
         {...listeners}
-        style={{
-          cursor: "move",
-          padding: "5px",
-          border: "1px solid #ccc",
-          backgroundColor: "#f0f0f0",
-          userSelect: "none",
-        }}
+        className="drag-handle"
         title="Drag to reorder"
       >
         ≡
       </div>
 
-      <div
-        style={{
-          width: "100px",
-          height: "100px",
-          border: "1px solid #ccc",
-        }}
-      >
-        <img
-          src={image.src}
-          alt={image.alt}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-          }}
-        />
+      <div className="image-preview">
+        <img src={image.src} alt={image.alt} className="image-preview-img" />
       </div>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
+      <div className="image-info">
         {editingId === image.id ? (
           <div
+            className="edit-form"
             style={{
               display: "flex",
               flexDirection: "column",
-              gap: "15px",
+              gap: "8px",
             }}
           >
-            <div style={{ display: "flex", gap: "15px" }}>
-              <input
-                type="text"
-                value={editForm.alt}
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    alt: e.target.value,
-                  }))
-                }
-                placeholder="Alt text"
-                style={{
-                  flex: 1,
-                  height: "40px",
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              />
-              <input
-                type="number"
-                value={editForm.year}
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    year: parseInt(e.target.value),
-                  }))
-                }
-                min="2020"
-                max="2030"
-                style={{
-                  width: "80px",
-                  height: "40px",
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              />
-            </div>
+            <input
+              type="text"
+              value={editForm.alt}
+              onChange={(e) =>
+                setEditForm((prev) => ({
+                  ...prev,
+                  alt: e.target.value,
+                }))
+              }
+              placeholder="Alt text"
+              style={{
+                width: "100%",
+                height: "40px",
+                padding: "8px",
+                border: "1px solid #ccc",
+                fontSize: "14px",
+                boxSizing: "border-box",
+              }}
+            />
             <textarea
               value={editForm.description}
               onChange={(e) =>
@@ -217,78 +163,37 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
                 }))
               }
               placeholder="Description"
-              rows={2}
+              rows={1}
               style={{
-                height: "60px",
+                width: "100%",
+                height: "40px",
                 padding: "8px",
                 border: "1px solid #ccc",
+                fontSize: "14px",
+                resize: "none",
+                boxSizing: "border-box",
               }}
             />
-            <div style={{ display: "flex", gap: "15px" }}>
-              <select
-                value={editForm.category}
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    category: e.target.value as "finished" | "wip",
-                  }))
-                }
-                style={{
-                  flex: 1,
-                  height: "40px",
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                <option value="finished">Finished</option>
-                <option value="wip">WIP</option>
-              </select>
-              <select
-                value={editForm.width}
-                onChange={(e) =>
-                  setEditForm((prev) => ({
-                    ...prev,
-                    width: parseInt(e.target.value),
-                  }))
-                }
-                style={{
-                  width: "80px",
-                  height: "40px",
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                <option value={1}>1 col</option>
-                <option value={2}>2 col</option>
-                <option value={3}>3 col</option>
-                <option value={4}>4 col</option>
-                <option value={5}>5 col</option>
-                <option value={6}>6 col</option>
-                <option value={7}>7 col</option>
-              </select>
-            </div>
-            <div style={{ display: "flex", gap: "15px" }}>
-              <button
-                onClick={() => handleEditSubmit(image.id)}
-                style={{
-                  flex: 1,
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Save
-              </button>
-              <button
-                onClick={cancelEdit}
-                style={{
-                  flex: 1,
-                  padding: "8px",
-                  border: "1px solid #ccc",
-                }}
-              >
-                Cancel
-              </button>
-            </div>
+            <select
+              value={editForm.category}
+              onChange={(e) =>
+                setEditForm((prev) => ({
+                  ...prev,
+                  category: e.target.value as "finished" | "wip",
+                }))
+              }
+              style={{
+                width: "100%",
+                height: "40px",
+                padding: "8px",
+                border: "1px solid #ccc",
+                fontSize: "14px",
+                boxSizing: "border-box",
+              }}
+            >
+              <option value="finished">Finished</option>
+              <option value="wip">WIP</option>
+            </select>
           </div>
         ) : (
           <div>
@@ -314,41 +219,58 @@ const SortableImageItem: React.FC<SortableImageItemProps> = ({
               >
                 {image.category}
               </span>
-              <span>|</span>
-              <span style={{ margin: "0 5px" }}>{image.year}</span>
-              <span>|</span>
-              <span
-                style={{
-                  backgroundColor: "#000",
-                  color: "#fff",
-                  padding: "2px 5px",
-                  marginLeft: "5px",
-                }}
-              >
-                {image.width}
-              </span>
             </div>
           </div>
         )}
       </div>
 
-      <div style={{ display: "flex", gap: "10px" }}>
-        <button
-          onClick={() => startEdit(image)}
-          style={{
-            padding: "8px 15px",
-            border: "1px solid #ccc",
-          }}
-        >
-          Edit
-        </button>
-        <button
-          onClick={() => handleDelete(image.id)}
-          disabled={deletingId === image.id}
-          style={{ padding: "8px 15px", color: "red" }}
-        >
-          {deletingId === image.id ? "Deleting..." : "Delete"}
-        </button>
+      <div className="image-actions" style={{ display: "flex", gap: "10px" }}>
+        {editingId === image.id ? (
+          <div className="form-actions">
+            <button
+              className="primary"
+              onClick={() => handleEditSubmit(image.id)}
+              style={{
+                padding: "8px 15px",
+                border: "1px solid #ccc",
+                backgroundColor: "#007bff",
+                color: "white",
+              }}
+            >
+              Save
+            </button>
+            <button
+              onClick={cancelEdit}
+              style={{
+                padding: "8px 15px",
+                border: "1px solid #ccc",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              className="image-action-button"
+              onClick={() => startEdit(image)}
+              style={{
+                padding: "8px 15px",
+                border: "1px solid #ccc",
+              }}
+            >
+              Edit
+            </button>
+            <button
+              className="image-action-button danger"
+              onClick={() => handleDelete(image.id)}
+              disabled={deletingId === image.id}
+              style={{ padding: "8px 15px", color: "red" }}
+            >
+              {deletingId === image.id ? "Deleting..." : "Delete"}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -379,7 +301,7 @@ const ImageList: React.FC<ImageListProps> = ({
       // Update order in database
       try {
         const updatePromises = reorderedImages.map((image, index) =>
-          galleryApi.updateImage(image.id, { order: index })
+          galleryApi.updateImage(image.id, { order: index * 10 })
         );
         await Promise.all(updatePromises);
 

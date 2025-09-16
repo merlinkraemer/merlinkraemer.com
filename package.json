@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
-    "dev:frontend": "vite",
+    "dev:frontend": "vite --config config/vite.config.ts",
     "dev:backend": "cd backend && npm run dev",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build --config config/vite.config.ts",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --config config/vite.config.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

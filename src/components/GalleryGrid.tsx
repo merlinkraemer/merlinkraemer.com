@@ -9,9 +9,12 @@ export default function GalleryGrid({
   images,
   onImageClick,
 }: GalleryGridProps) {
+  // Sort images by order field to match backend ordering
+  const sortedImages = [...images].sort((a, b) => a.order - b.order);
+
   return (
     <div className="gallery-grid">
-      {images.map((image, index) => (
+      {sortedImages.map((image, index) => (
         <div
           key={image.id}
           className="gallery-item"

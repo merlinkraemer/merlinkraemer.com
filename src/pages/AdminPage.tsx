@@ -65,7 +65,11 @@ const SortableLink: React.FC<SortableLinkProps> = ({
       ref={setNodeRef}
       style={{
         ...style,
-        marginBottom: "15px",
+        marginBottom: "20px",
+        padding: "15px",
+        border: "1px solid #e0e0e0",
+        borderRadius: "8px",
+        backgroundColor: "#fafafa",
         display: "flex",
         alignItems: "center",
         gap: "10px",
@@ -106,6 +110,8 @@ const SortableLink: React.FC<SortableLinkProps> = ({
             minWidth: "200px",
             padding: "8px",
             border: "1px solid #ccc",
+            height: "40px",
+            boxSizing: "border-box",
           }}
         />
         <input
@@ -118,6 +124,8 @@ const SortableLink: React.FC<SortableLinkProps> = ({
             minWidth: "250px",
             padding: "8px",
             border: "1px solid #ccc",
+            height: "40px",
+            boxSizing: "border-box",
           }}
         />
         <div
@@ -399,6 +407,50 @@ const AdminPage: React.FC = () => {
     <AdminLayout onLogout={handleLogout}>
       <style>
         {`
+          /* Desktop styles */
+          .image-item {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fafafa;
+            margin: 15px 0;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+          }
+          
+          .drag-handle {
+            cursor: move;
+            padding: 5px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            max-width: 2rem;
+          }
+          
+          .image-preview {
+            width: 100px;
+            height: 100px;
+          }
+          
+          .image-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .image-info {
+            flex: 1;
+            min-width: 0;
+          }
+          
+          .image-actions {
+            display: flex;
+            gap: 10px;
+          }
+          
           @media (max-width: 768px) {
             .link-row {
               flex-direction: column !important;
@@ -406,6 +458,12 @@ const AdminPage: React.FC = () => {
             .link-input {
               width: 100% !important;
               min-width: unset !important;
+              height: 40px !important;
+              padding: 8px !important;
+              font-size: 14px !important;
+              border: 1px solid #ccc !important;
+              border-radius: 4px !important;
+              box-sizing: border-box !important;
             }
             .link-buttons {
               display: flex !important;
@@ -417,22 +475,77 @@ const AdminPage: React.FC = () => {
             .image-item {
               flex-direction: column !important;
             }
+            .drag-handle {
+              display: flex !important;
+              justify-content: center !important;
+              max-width: 2rem !important;
+            }
             .image-preview {
               width: 100% !important;
               height: 200px !important;
-              margin-bottom: 10px !important;
+              margin-bottom: 15px !important;
+            }
+            .image-preview img {
+              width: 100% !important;
+              max-width: none !important;
             }
             .image-info {
               width: 100% !important;
-              margin-bottom: 10px !important;
+              margin-bottom: 15px !important;
             }
             .image-actions {
+              width: 100% !important;
+              display: flex !important;
+              gap: 10px !important;
+            }
+            .image-action-button {
+              flex: 1 !important;
+            }
+            .edit-form {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 15px !important;
+            }
+            .edit-form input,
+            .edit-form textarea,
+            .edit-form select {
+              width: 100% !important;
+              height: 40px !important;
+              padding: 8px !important;
+              font-size: 14px !important;
+              border: 1px solid #ccc !important;
+              border-radius: 4px !important;
+              box-sizing: border-box !important;
+            }
+            .edit-form textarea {
+              height: 60px !important;
+              resize: vertical !important;
+            }
+            .edit-form .form-actions {
               display: flex !important;
               gap: 10px !important;
               width: 100% !important;
             }
-            .image-action-button {
+            .edit-form .form-actions button {
               flex: 1 !important;
+              height: 40px !important;
+              padding: 8px 16px !important;
+              font-size: 14px !important;
+              border: 1px solid #ccc !important;
+              border-radius: 4px !important;
+              background: #f5f5f5 !important;
+              cursor: pointer !important;
+              box-sizing: border-box !important;
+            }
+            .edit-form .form-actions button.primary {
+              background: #007bff !important;
+              color: white !important;
+              border-color: #007bff !important;
+            }
+            .edit-form .form-actions button.danger {
+              background: #dc3545 !important;
+              color: white !important;
+              border-color: #dc3545 !important;
             }
           }
         `}
@@ -477,10 +590,12 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setNewLinkText(e.target.value)}
               className="link-input"
               style={{
-                flex: "1 1 200px",
+                flex: "1",
                 minWidth: "150px",
                 padding: "8px",
                 border: "1px solid #ccc",
+                height: "40px",
+                boxSizing: "border-box",
               }}
             />
             <input
@@ -490,10 +605,12 @@ const AdminPage: React.FC = () => {
               onChange={(e) => setNewLinkUrl(e.target.value)}
               className="link-input"
               style={{
-                flex: "1 1 200px",
+                flex: "1",
                 minWidth: "150px",
                 padding: "8px",
                 border: "1px solid #ccc",
+                height: "40px",
+                boxSizing: "border-box",
               }}
             />
             <button
@@ -595,6 +712,15 @@ const AdminPage: React.FC = () => {
 
       {/* Gallery Images - Finished */}
       <div style={{ marginBottom: "50px" }}>
+        <h2
+          style={{
+            marginBottom: "20px",
+            fontSize: "20px",
+            fontWeight: "bold",
+          }}
+        >
+          Finished
+        </h2>
         <ImageList
           images={galleryData.finished}
           onImageUpdated={handleImageUpdated}
@@ -605,6 +731,15 @@ const AdminPage: React.FC = () => {
 
       {/* Gallery Images - WIP */}
       <div style={{ marginBottom: "50px" }}>
+        <h2
+          style={{
+            marginBottom: "20px",
+            fontSize: "20px",
+            fontWeight: "bold",
+          }}
+        >
+          WIP
+        </h2>
         <ImageList
           images={galleryData.wip}
           onImageUpdated={handleImageUpdated}

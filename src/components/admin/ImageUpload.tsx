@@ -11,7 +11,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
     alt: "",
     description: "",
     category: "finished" as "finished" | "wip",
-    year: new Date().getFullYear(),
   });
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +56,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "year" ? parseInt(value) : value,
+      [name]: value,
     }));
   };
 
@@ -83,7 +82,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
       uploadData.append("alt", formData.alt);
       uploadData.append("description", formData.description);
       uploadData.append("category", formData.category);
-      uploadData.append("year", formData.year.toString());
+      uploadData.append("year", new Date().getFullYear().toString());
 
       await galleryApi.addImage(uploadData);
 
@@ -93,7 +92,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
         alt: "",
         description: "",
         category: "finished",
-        year: new Date().getFullYear(),
       });
 
       // Clear file input
@@ -269,77 +267,40 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onImageAdded }) => {
                   padding: "8px",
                   marginBottom: "15px",
                   border: "1px solid #ccc",
+                  boxSizing: "border-box",
                 }}
                 placeholder="e.g., 56x42cm, Acryl, Pastel auf Holz - 50€"
                 required
               />
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: "15px",
-                marginBottom: "15px",
-                flexWrap: "wrap",
-              }}
-            >
-              <div style={{ flex: "1", minWidth: "120px" }}>
-                <label
-                  htmlFor="category"
-                  style={{
-                    display: "block",
-                    fontWeight: "bold",
-                    marginBottom: "5px",
-                  }}
-                >
-                  Category
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    boxSizing: "border-box",
-                  }}
-                >
-                  <option value="finished">Finished</option>
-                  <option value="wip">Work in Progress</option>
-                </select>
-              </div>
-
-              <div style={{ flex: "1", minWidth: "120px" }}>
-                <label
-                  htmlFor="year"
-                  style={{
-                    display: "block",
-                    fontWeight: "bold",
-                    marginBottom: "5px",
-                  }}
-                >
-                  Year
-                </label>
-                <input
-                  id="year"
-                  name="year"
-                  type="number"
-                  value={formData.year}
-                  onChange={handleInputChange}
-                  style={{
-                    width: "100%",
-                    height: "40px",
-                    padding: "8px",
-                    border: "1px solid #ccc",
-                    boxSizing: "border-box",
-                  }}
-                  min="2020"
-                  max="2030"
-                />
-              </div>
+            <div style={{ marginBottom: "15px" }}>
+              <label
+                htmlFor="category"
+                style={{
+                  display: "block",
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                }}
+              >
+                Category
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                style={{
+                  width: "100%",
+                  height: "40px",
+                  padding: "8px",
+                  border: "1px solid #ccc",
+                  boxSizing: "border-box",
+                }}
+              >
+                <option value="finished">Finished</option>
+                <option value="wip">WIP</option>
+              </select>
             </div>
             <button
               type="submit"

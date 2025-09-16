@@ -116,6 +116,13 @@ app.post(
       const uploadResult = await s3Client.send(uploadCommand);
       console.log("R2 upload result:", uploadResult);
 
+      // Get the next order value for this category
+      const lastImage = await prisma.galleryImage.findFirst({
+        where: { category },
+        orderBy: { order: "desc" },
+      });
+      const nextOrder = lastImage ? lastImage.order + 1 : 0;
+
       // Create database record
       const imageUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
       const newImage = await prisma.galleryImage.create({
@@ -126,6 +133,7 @@ app.post(
           category,
           year: parseInt(year),
           width: 1,
+          order: nextOrder,
         },
       });
 

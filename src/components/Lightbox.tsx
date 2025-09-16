@@ -40,8 +40,13 @@ export default function Lightbox({
     new Set()
   );
 
+  // Sort images by order field to match backend ordering
+  const sortedImages = [...allImages].sort((a, b) => a.order - b.order);
+
   // Calculate the correct index
-  const activeIndex = allImages.findIndex((img) => img.id === currentImageId);
+  const activeIndex = sortedImages.findIndex(
+    (img) => img.id === currentImageId
+  );
 
   // Preload images when gallery data changes
   const preloadImages = useCallback(async (images: GalleryImage[]) => {
@@ -209,7 +214,7 @@ export default function Lightbox({
             style={{ height: "100%", width: "100%" }}
             onSwiper={setSwiperInstance}
           >
-            {allImages.map((image) => {
+            {sortedImages.map((image) => {
               const isPreloaded = isImagePreloaded(image.id);
               const hasError = hasImageError(image.id);
               const isLoading = imageLoading.has(image.id) && !isPreloaded;
