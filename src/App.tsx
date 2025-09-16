@@ -254,7 +254,7 @@ function App() {
   // Show loading screen only for initial gallery data loading
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+3      <div className="min-h-screen flex items-center justify-center bg-gray-50 loading-screen">
         <div className="text-center">
           <div className="logo wiggle mb-6">
             <img

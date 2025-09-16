@@ -333,6 +333,25 @@ footer {
     width: 24px;
     height: 24px;
   }
+
+  /* Fix loading screen spacing on mobile */
+  .loading-screen .logo {
+    margin-bottom: 3rem;
+  }
+
+  .loading-screen .text-center {
+    padding: 2rem;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .loading-screen .text-2xl {
+    font-size: 1.25rem;
+    line-height: 1.5;
+  }
 }
 
 /* Lightbox styles */
