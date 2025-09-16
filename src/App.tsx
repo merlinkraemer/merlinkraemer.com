@@ -71,32 +71,33 @@ const HomePage = ({
               />
             </div>
 
-            <nav className="links flex flex-col gap-y-1">
-              {regularLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ cursor: "pointer" }}
-                >
-                  {link.text}
-                </a>
-              ))}
-              {socialLinks.length > 0 && regularLinks.length > 0 && (
-                <div className="py-2" />
-              )}
-              {socialLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ cursor: "pointer" }}
-                >
-                  {link.text}
-                </a>
-              ))}
+            <nav className="links">
+              <div className="regular-links flex flex-col gap-y-1">
+                {regularLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {link.text}
+                  </a>
+                ))}
+              </div>
+              <div className="social-links flex flex-col gap-y-1">
+                {socialLinks.map((link) => (
+                  <a
+                    key={link.id}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ cursor: "pointer" }}
+                  >
+                    {link.text}
+                  </a>
+                ))}
+              </div>
             </nav>
           </div>
         </main>

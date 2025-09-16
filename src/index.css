@@ -167,7 +167,7 @@ img.loading {
 
 /* Default styles for mobile */
 .mobile-pt {
-  padding-top: 5vh;
+  padding-top: 20vh;
 }
 
 main,
@@ -178,10 +178,39 @@ footer {
 }
 
 .links a {
-  font-size: 16px;
-  line-height: 1.4;
-  display: block;
-  margin-bottom: 0.25rem;
+  font-size: 1em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0rem;
+  min-height: 1em;
+  padding: 0em 0;
+  text-decoration: underline;
+  color: #0000ff;
+}
+
+/* Ensure consistent text alignment for all links */
+.links a {
+  font-feature-settings: "kern" 1;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Force all text content to align consistently */
+.links a,
+.links a * {
+  vertical-align: baseline;
+  line-height: 1;
+}
+
+/* Link container spacing */
+.regular-links {
+  margin-bottom: 1rem;
+}
+
+.social-links {
+  margin-bottom: 0;
 }
 
 .gallery-grid {
@@ -200,7 +229,7 @@ footer {
 /* Tablet styles (481px and up) */
 @media (min-width: 481px) {
   .mobile-pt {
-    padding-top: 10vh;
+    padding-top: 20vh;
   }
 
   main,
@@ -212,9 +241,14 @@ footer {
 
   .links a {
     font-size: inherit;
-    line-height: inherit;
-    display: block;
-    margin-bottom: 0.25rem;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.1rem;
+    min-height: 1.4em;
+    padding: 0.1em 0;
+    text-decoration: underline;
+    color: #0000ff;
   }
 
   .gallery-grid {
